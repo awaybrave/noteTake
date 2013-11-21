@@ -1,0 +1,25 @@
+.navigation{
+	width: 300px; 
+}
+
+.navigation ul{
+	width: 298px;
+	position: relative;
+	border: 1px solid black;
+}
+
+.navigation ul li{
+	list-style: none;
+	height: 50px;
+	background: #ccc; 
+	border-bottom: 1px solid black;
+	position: absolute;
+}
+
+.navigation .last{
+	border-bottom: none;
+}
+
+.main-content{
+	width: 800px;
+}
