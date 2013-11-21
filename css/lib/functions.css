@@ -5,3 +5,15 @@
 .fn-block{
 	display: block;
 }
+
+.fn-clear{
+	clear:both;
+}
+
+.fn-left{
+	float: left;
+}
+
+.fn-right{
+	float: right;
+}
