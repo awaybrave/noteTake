@@ -1,0 +1,33 @@
+{
+  "name" : "Note Take",
+  "version" : "1.1",
+  "description" : "Taking notes from web pages",
+  "background" : {
+	"page" : "background.html"
+  //  "scripts": ["./js/background.js"]
+  },
+  "browser_action":{
+	"default_icon": "./image/sandwich-19.png",
+	"default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches" : [
+      //  "http://*/*",
+      // "https://*/*",
+		"file:///*/*"
+      ],
+      "js" : ["./js/contentscript.js"]//,
+      //"run_at" : "document_idle",
+      //"all_frames" : false
+    }
+  ],
+  "permissions":[
+  	  "tabs"
+  ],
+  "icons" : {
+    "48" : "./image/sandwich-48.png",
+    "128" : "./image/sandwich-128.png"
+  },
+  "manifest_version": 2
+}
