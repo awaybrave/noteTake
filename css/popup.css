@@ -1,0 +1,27 @@
+.main-content{
+	width: 200px;
+	background: #e6e6fa;
+}
+
+.title{
+	font-size: 20px;
+	font-weight: bold;
+	color: #6a5acd;
+	margin: 20px 0;
+}
+
+.main-content ul{
+		
+}
+
+.main-content li{
+	list-style: none;
+	color: #8a2be2;
+	cursor: pointer;
+	margin-bottom: 10px;
+	border-bottom: 1px solid #dcdcdc;
+}
+
+.main-content .li-last{
+	border-bottom: none;
+}
