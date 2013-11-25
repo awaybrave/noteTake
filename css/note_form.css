@@ -1,0 +1,19 @@
+#note-form form{
+	width: 300px;
+	height: 400px;
+}
+
+#note-form form .note-item-title{
+	color : #ccc; 
+	margin: 10px 0;
+}
+
+#note-form form li{
+	list-style: none;	
+}
+
+#note-form form textarea{
+	width: 100%;
+}
+
+
