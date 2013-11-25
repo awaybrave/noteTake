@@ -13,7 +13,13 @@ function taskAssign(){
 
 	/*Task 2: Open a tabs to see all of the notes.*/
 	$("#link-home").bind('click', function(){
-			
+		var msg = {};
+		msg.sender = 'extension';
+		msg.receiver = 'background';
+		msg.task = 'seeall';
+		chrome.runtime.sendMessage(msg,
+			function(){}
+		);
 	});
 }
 
