@@ -36,9 +36,13 @@ function enableSelection(){
 					note_msg.note.createTime = time;
 					//未处理关键字
 					chrome.runtime.sendMessage(note_msg, 
-						function(){}
+						function(){ 
+						}
 					); 
 					popup.close();
+					var body = document.getElementsByTagName("body")[0]; 
+					body.removeEventListener("mouseup", enableSelection);
+
 				});
 				$("#note-item-cancel").click(function(){
 					popup.close();	
