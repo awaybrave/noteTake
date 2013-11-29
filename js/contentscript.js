@@ -10,19 +10,58 @@ function getTime(){
 	return result;
 }
 
-function enableSelection(){ 
+function currentNoteStorage(){
+	var that = {};
+	var info = {};
+	info.texts = [];
+
+	that.dealInfo = function(obj){
+		if(obj.text)
+			info.texts.push(obj.text);
+		if(!info.createTime && obj.createTime)
+			info.createTime = obj.createTime;
+	};
+
+	that.getText = function(){
+		return info.texts;
+	};
+
+	that.getTime = function(){
+		return info.createTime;
+	};
+
+	return that;
+}
+
+var textCapture = currentNoteStorage();
+
+function enableSelection(event){ 
 	var text = window.getSelection().toString();
 	if(text){ 
 		/*set form data*/
 		var popup = new $.Popup();
 		popup.open("../html/form.html", "url");
-		var time = getTime();
+
+		/*deal with text infomation*/
+		var newTextInfo = {};
+		newTextInfo.text = text;
+		if(textCapture.getTime() == undefined)
+			newTextInfo.createTime = getTime();
+		textCapture.dealInfo(newTextInfo);
+		/*end*/
 
 		var note_form_timer = setTimeout(function(){
 			if($("#note-form").size() > 0){ 
-
-				$("#note-form-date").text(time);
-				$("#note-form-content").text(text);
+				/*diplay the createTime and all texts that 
+				  are already captured and stored.
+				*/
+				$("#note-form-date").text(textCapture.getTime());
+				var storedTexts = textCapture.getText();
+				for(var i = 0; i < storedTexts.length; i++){
+					$("#note-form-content").append(
+						"<div class='note-paragraph'>" + storedTexts[i]+ "</div>"); 
+				}
+				/*end*/
 
 				/*set confirm button clicking to send message 
 				to background*/
@@ -32,21 +71,32 @@ function enableSelection(){
 					note_msg.receiver = "background";
 					note_msg.task = "addContent";
 					note_msg.note = {};
-					note_msg.note.content = text;
-					note_msg.note.createTime = time;
+					note_msg.note.content = storedTexts;
+					note_msg.note.createTime = textCapture.createTime;
 					//未处理关键字
 					chrome.runtime.sendMessage(note_msg, 
 						function(){ 
 						}
 					); 
-					popup.close();
+					popup.close(); 
+					var body = document.getElementsByTagName("body")[0]; 
+					body.removeEventListener("mouseup", enableSelection); 
+				});
+				/*end*/
+
+				/*set the cancel button clicking to close the form
+				 and detach the handler of capturing text*/
+				$("#note-item-cancel").click(function(){
 					var body = document.getElementsByTagName("body")[0]; 
 					body.removeEventListener("mouseup", enableSelection);
-
-				});
-				$("#note-item-cancel").click(function(){
 					popup.close();	
 				});
+				/*end*/
+
+				$("#note-form-add").click(function(){
+					popup.close();	
+				});
+
 				clearTimeout(note_form_timer);
 			}
 		}, 100); 
@@ -69,6 +119,5 @@ function enableSelection(){
 					}
 				}
 			}
-	});
-
+	}); 
 })(); 

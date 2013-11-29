@@ -50,8 +50,8 @@ var dataBaseFunction = function(){
 	}
 
 	that.addItem = function(item){ 
-		var transaction = that.db.transaction("notes", "readwrite");
-		var os = transaction.objectStore("notes");
+		var transaction = that.db.transaction("notes1", "readwrite");
+		var os = transaction.objectStore("notes1");
 		/*set createTime and notesId*/
 		item.notesId = getId();
 		os.add(item);	
