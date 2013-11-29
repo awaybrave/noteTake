@@ -36,6 +36,15 @@ function currentNoteStorage(){
 var textCapture = currentNoteStorage();
 
 function enableSelection(event){ 
+
+	var note_edit_form = document.getElementById("note-form");
+	var father = event.target.parentNode;
+	while(father){
+		if(father == note_edit_form)
+			return;
+		father = father.parentNode;
+	}
+
 	var text = window.getSelection().toString();
 	if(text){ 
 		/*set form data*/
