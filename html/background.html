@@ -8,6 +8,28 @@
 		<script src="../js/background.js"></script>
 	</head>
 	<body>
+		<div class="main-content fn-right">
+			<!--The overall of notes-->
+			<div id="main-content-view">
+				<div class="item">
+					<p class="time-id">
+						<span class="createtime"></span>
+						<span class="id fn-hide"></span>
+					</p>
+					<!--show content here-->
+					<div class="content-paras"></div>
+					<!--end of showing-->
+					<p class="url"></p>
+				</div>
+			</div>
+			<!--end of overall-->
+
+			<!--The statistical information-->
+			<div id="main-content-statics fn-hide">
+			</div>
+			<!--End of statistic-->
+
+		</div>
 		<div class="navigation fn-left">
 			<ul>
 				<li>概述</li>
@@ -15,9 +37,6 @@
 				<li>最多搜索</li>
 				<li class="last">联系作者</li>
 			</ul>
-		</div>
-		<div class="main-content fn-right">
-			<div id="main-content-view"></div>
 		</div>
 	</body>
 </html>

@@ -27,7 +27,7 @@ var dataBaseFunction = function(){
 	var that = {}; 
 
 	that.dbName = "note";
-	that.dbVersion = 3;
+	that.dbVersion = 1;
 
 	that.open = function(){
 		that.request = indexedDB.open(that.dbName, that.dbVersion);
@@ -42,7 +42,7 @@ var dataBaseFunction = function(){
 
 		that.request.onupgradeneeded = function(event){
 			that.db = event.target.result;
-			that.objectStore = that.db.createObjectStore("notes1", {keyPath: "notesId"});
+			that.objectStore = that.db.createObjectStore("notes", {keyPath: "notesId"});
 			that.objectStore.createIndex("content", "content", {unique:false});	
 			that.objectStore.createIndex("createTime", "createTime", {unique:true});	
 
@@ -50,8 +50,8 @@ var dataBaseFunction = function(){
 	}
 
 	that.addItem = function(item){ 
-		var transaction = that.db.transaction("notes1", "readwrite");
-		var os = transaction.objectStore("notes1");
+		var transaction = that.db.transaction("notes", "readwrite");
+		var os = transaction.objectStore("notes");
 		/*set createTime and notesId*/
 		item.notesId = getId();
 		os.add(item);	
@@ -62,7 +62,7 @@ var dataBaseFunction = function(){
 		objectStore.openCursor().onsuccess = function(event){
 			var cursor = event.target.result;	
 			if(cursor){
-				func(cursor.value);
+				func(cursor.key, cursor.value);
 				cursor.continue();
 			}
 		};
@@ -74,17 +74,34 @@ var dataBaseFunction = function(){
 var backgroundView = function(){
 	var that = {};
 
-	that.addItemToView = function(note){
-		var itemBlock = $("#main-content-view").append(
-			"<div class='content-view-item'></div>");
-		itemBlock.append("<p class='view-item-create'>"+note.createTime+"</p>");
-		itemBlock.append("<div class='view-item-content'>"+note.content+"</div>");
+	that.addItemToView = function(key, note){
+		var itemBlock = document.getElementsByClassName("item")[0];
+		var cloneBlock = itemBlock.cloneNode(true);
+		itemBlock.parentNode.appendChild(cloneBlock);
+		var ctBlock = cloneBlock.getElementsByClassName("createtime")[0];
+		ctBlock.innerHTML = note.createTime;
+		var idBlock = cloneBlock.getElementsByClassName("id")[0];
+		idBlock.innerHTML = key;
+		var contentAllBlock = cloneBlock.getElementsByClassName("content-paras")[0];
+		for(var i in note.content){
+			var contentBlock = document.createElement("div");
+			contentBlock.className = "view-content";
+			contentBlock.innerHTML = note.content[i];
+			contentAllBlock.appendChild(contentBlock);
+		}
+		var urlBlock = cloneBlock.getElementsByClassName("url")[0];
+		urlBlock.innerHTML = "来自:" + note.url;
 	}
 
 	return that;
 }
 
 window.onload = function(){
+
+	/*delete the database
+	indexedDB.deleteDatabase("note");
+	*/	
+
 	var db = dataBaseFunction();
 	db.open();
 	var bv = backgroundView(); 
@@ -102,6 +119,7 @@ window.onload = function(){
 					if(request.task == 'addContent'){
 						/*add an item into the notes database*/
 						db.addItem(request.note);
+						sendResponse({result: true});		
 					}
 				}
 				if(request.sender == 'extension'){

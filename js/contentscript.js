@@ -17,9 +17,16 @@ function currentNoteStorage(){
 
 	that.dealInfo = function(obj){
 		if(obj.text)
-			info.texts.push(obj.text);
+			info.texts.push(obj.text); 
 		if(!info.createTime && obj.createTime)
 			info.createTime = obj.createTime;
+		if(obj.url)
+			info.url = obj.url;
+	};
+
+	that.clear = function(){
+		info.texts = [];	
+		info.createTime = undefined;
 	};
 
 	that.getText = function(){
@@ -29,6 +36,10 @@ function currentNoteStorage(){
 	that.getTime = function(){
 		return info.createTime;
 	};
+
+	that.getUrl = function(){
+		return info.url;
+	}
 
 	return that;
 }
@@ -54,6 +65,7 @@ function enableSelection(event){
 		/*deal with text infomation*/
 		var newTextInfo = {};
 		newTextInfo.text = text;
+		newTextInfo.url = window.location.href;
 		if(textCapture.getTime() == undefined)
 			newTextInfo.createTime = getTime();
 		textCapture.dealInfo(newTextInfo);
@@ -81,10 +93,13 @@ function enableSelection(event){
 					note_msg.task = "addContent";
 					note_msg.note = {};
 					note_msg.note.content = storedTexts;
-					note_msg.note.createTime = textCapture.createTime;
+					note_msg.note.createTime = textCapture.getTime();
+					note_msg.note.url = textCapture.getUrl();
 					//未处理关键字
 					chrome.runtime.sendMessage(note_msg, 
 						function(){ 
+							//Clear the textCapture object;
+							textCapture.clear();
 						}
 					); 
 					popup.close(); 
@@ -96,6 +111,7 @@ function enableSelection(event){
 				/*set the cancel button clicking to close the form
 				 and detach the handler of capturing text*/
 				$("#note-item-cancel").click(function(){
+					textCapture.clear();
 					var body = document.getElementsByTagName("body")[0]; 
 					body.removeEventListener("mouseup", enableSelection);
 					popup.close();	
