@@ -38,6 +38,8 @@ var dataBaseFunction = function(){
 
 	that.dbName = "note";
 	that.dbVersion = 1;
+	that.allItemsReady = false;
+	that.allItems = [];
 
 	that.open = function(){
 		that.request = indexedDB.open(that.dbName, that.dbVersion);
@@ -68,80 +70,25 @@ var dataBaseFunction = function(){
 		os.add(item);	
 	};
 
-	that.getItem = function(number, func){ 
-		var itemset = [];
-		var getComplete = false; 
-		var startItem = undefined;
-		that.upperTime = undefined;
-
-		//get the first note to be the mark of 
-		//the finish of digging all notes.
-		var waitForStartItem = setInterval(function(){
-			var objectStore = that.db.transaction("notes").objectStore("notes"); 
-			objectStore.openCursor().onsuccess = function(event){ 
-				var cursor = event.target.result;	
-				if(cursor){
-					startItem = cursor.value;
+	that.getItem = function(func, number){ 
+		var os = that.db.transaction("notes").objectStore("notes");
+		var itemsCount = 0;
+		os.openCursor().onsuccess = function(event){
+			var cursor = event.target.result;	
+			if(cursor){
+				if(itemsCount < number){
+					func(cursor.key, cursor.value); 
+					itemsCount++;
 				}
 				else{
-					startItem = null;
+					that.allItems.push([cursor.key, cursor.value]);	
 				}
-				clearTimeout(waitForStartItem);
+				cursor.continue();
 			}
-		}, 20);
-
-		var waitForItems = setInterval(function(){
-			if(startItem === undefined)
-				return;
-			if(startItem === null || getComplete){ 
-				var isize = itemset.length;
-				if(isize == 0)
-					alert("no notes!");
-				//arrange the items by their id
-				for(var i = 0; i < number && i < itemset.length; i++)
-					func(itemset[isize-i-1][0], itemset[isize-i-1][1]); 
-				clearInterval(waitForItems);
-				//deal with the remaining items and reset the time bound
+			else{
+				that.allItemsReady = true;
 			}
-			else{ 
-				if(that.upperTime == undefined){
-					var currentTime = new Date(); 
-					that.upperTime = new Date();
-					that.lastTime = new Date(
-						currentTime.setDate(currentTime.getDate()-1)
-					); 
-				}
-				else{
-					var tempTime = new Date(that.upperTime);
-					that.lastTime = new Date(
-						tempTime.setDate(tempTime.getDate()-1)
-					);	
-				}
-				var lowerId = getId(that.lastTime); // get current id used as timestamp line
-				var upperId = getId(that.upperTime);
-				var boundRange = IDBKeyRange.bound(lowerId, upperId);
-				var objectStore = that.db.transaction("notes").objectStore("notes"); 
-				objectStore.openCursor(boundRange).onsuccess = function(event){ 
-					var cursor = event.target.result;	
-					if(cursor){
-						itemset.push([cursor.key, cursor.value]);
-						if(itemset.length >= number || 
-							startItem && startItem.notesId == cursor.value.notesId
-						  ){
-							getComplete = true;
-							that.upperTime = that.lastTime;
-							return;
-						}
-						cursor.continue();
-					}
-					else{
-						if(itemset.length >= number)
-							getComplete = true; 
-						that.upperTime = that.lastTime;
-					}
-				};
-			}
-		}, 50); 
+		};
 	};
 
 	return that;
@@ -221,13 +168,50 @@ window.onload = function(){
 					var timedDB = setTimeout(function(){
 						if(db.db){
 							// get the first 5 items
-							db.getItem(15, bv.addItemToView);
+							db.getItem(bv.addItemToView, 5);
 							clearTimeout(timedDB);
 						}	
 					}, 200);
 				}
 				else
-					db.getItem(bv.addItemToView)
+					db.getItem(bv.addItemToView, 5);
+				var showEarlyButton = document.getElementById("view-continue");
+				showEarlyButton.onclick = function(){
+					var doneNum = 0;
+					var nextItems = setInterval(function(){
+						if(doneNum == 5){
+							clearInterval(nextItems);	
+							return;
+						}
+						if(db.allItemsReady){
+							if(db.allItems.length == 0){
+								// warning of no more earlier notes;
+								alert("没有更多笔记了！");
+								clearInterval(nextItems);	
+								return;
+							}
+							while(doneNum < 5){
+								if(db.allItems.length == 0){
+									clearInterval(nextItems);	
+									break;
+								}
+								var currentItem = db.allItems.shift();
+								bv.addItemToView(currentItem[0], currentItem[1]);	
+								doneNum++;
+							}
+						}
+						else{
+							while(doneNum < 5){ 
+								if(db.allItems.length == 0)
+									break;
+								var currentItem = db.allItems.shift();
+								bv.addItemToView(currentItem[0], currentItem[1]);	
+								doneNum++;
+							}
+						}
+					}, 50);
+				};
+
 				break;
 		}
 	}
