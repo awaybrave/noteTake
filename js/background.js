@@ -10,14 +10,24 @@ var counter = function(){
 }();
 */
 
-var getId = function(){
+var getId = function(time){
 	var result = "";
-	var time = new Date();
+	//var time = new Date();
 	result += time.getFullYear();
-	result += (time.getMonth()+1);
+	if(time.getMonth() < 9)
+		result += '0';
+	result += time.getMonth()+1; 
+	if(time.getDate() < 9)
+		result += '0';
 	result += time.getDate();
+	if(time.getHours() < 9)
+		result += '0';
 	result += time.getHours();
+	if(time.getMinutes() < 9)
+		result += '0';
 	result += time.getMinutes();
+	if(time.getSeconds() < 9)
+		result += '0';
 	result += time.getSeconds();
 	return result;
 };
@@ -45,7 +55,7 @@ var dataBaseFunction = function(){
 			that.objectStore = that.db.createObjectStore("notes", {keyPath: "notesId"});
 			that.objectStore.createIndex("content", "content", {unique:false});	
 			that.objectStore.createIndex("createTime", "createTime", {unique:true});	
-
+			that.objectStore.createIndex("url", "url");
 		};
 	}
 
@@ -53,19 +63,85 @@ var dataBaseFunction = function(){
 		var transaction = that.db.transaction("notes", "readwrite");
 		var os = transaction.objectStore("notes");
 		/*set createTime and notesId*/
-		item.notesId = getId();
+		var time = new Date();
+		item.notesId = getId(time);
 		os.add(item);	
 	};
 
-	that.getItem = function(func){
-		var objectStore = that.db.transaction("notes").objectStore("notes");
-		objectStore.openCursor().onsuccess = function(event){
-			var cursor = event.target.result;	
-			if(cursor){
-				func(cursor.key, cursor.value);
-				cursor.continue();
+	that.getItem = function(number, func){ 
+		var itemset = [];
+		var getComplete = false; 
+		var startItem = undefined;
+		that.upperTime = undefined;
+
+		//get the first note to be the mark of 
+		//the finish of digging all notes.
+		var waitForStartItem = setInterval(function(){
+			var objectStore = that.db.transaction("notes").objectStore("notes"); 
+			objectStore.openCursor().onsuccess = function(event){ 
+				var cursor = event.target.result;	
+				if(cursor){
+					startItem = cursor.value;
+				}
+				else{
+					startItem = null;
+				}
+				clearTimeout(waitForStartItem);
 			}
-		};
+		}, 20);
+
+		var waitForItems = setInterval(function(){
+			if(startItem === undefined)
+				return;
+			if(startItem === null || getComplete){ 
+				var isize = itemset.length;
+				if(isize == 0)
+					alert("no notes!");
+				//arrange the items by their id
+				for(var i = 0; i < number && i < itemset.length; i++)
+					func(itemset[isize-i-1][0], itemset[isize-i-1][1]); 
+				clearInterval(waitForItems);
+				//deal with the remaining items and reset the time bound
+			}
+			else{ 
+				if(that.upperTime == undefined){
+					var currentTime = new Date(); 
+					that.upperTime = new Date();
+					that.lastTime = new Date(
+						currentTime.setDate(currentTime.getDate()-1)
+					); 
+				}
+				else{
+					var tempTime = new Date(that.upperTime);
+					that.lastTime = new Date(
+						tempTime.setDate(tempTime.getDate()-1)
+					);	
+				}
+				var lowerId = getId(that.lastTime); // get current id used as timestamp line
+				var upperId = getId(that.upperTime);
+				var boundRange = IDBKeyRange.bound(lowerId, upperId);
+				var objectStore = that.db.transaction("notes").objectStore("notes"); 
+				objectStore.openCursor(boundRange).onsuccess = function(event){ 
+					var cursor = event.target.result;	
+					if(cursor){
+						itemset.push([cursor.key, cursor.value]);
+						if(itemset.length >= number || 
+							startItem && startItem.notesId == cursor.value.notesId
+						  ){
+							getComplete = true;
+							that.upperTime = that.lastTime;
+							return;
+						}
+						cursor.continue();
+					}
+					else{
+						if(itemset.length >= number)
+							getComplete = true; 
+						that.upperTime = that.lastTime;
+					}
+				};
+			}
+		}, 50); 
 	};
 
 	return that;
@@ -79,10 +155,11 @@ var backgroundView = function(){
 		var cloneBlock = itemBlock.cloneNode(true);
 		itemBlock.parentNode.appendChild(cloneBlock);
 		var ctBlock = cloneBlock.getElementsByClassName("createtime")[0];
-		ctBlock.innerHTML = note.createTime;
+		ctBlock.innerHTML = note.createTime;//setting create time
 		var idBlock = cloneBlock.getElementsByClassName("id")[0];
-		idBlock.innerHTML = key;
+		idBlock.innerHTML = key; // setting id
 		var contentAllBlock = cloneBlock.getElementsByClassName("content-paras")[0];
+		//filling paragraphs from content
 		for(var i in note.content){
 			var contentBlock = document.createElement("div");
 			contentBlock.className = "view-content";
@@ -90,7 +167,7 @@ var backgroundView = function(){
 			contentAllBlock.appendChild(contentBlock);
 		}
 		var urlBlock = cloneBlock.getElementsByClassName("url")[0];
-		urlBlock.innerHTML = "来自:" + note.url;
+		urlBlock.innerHTML = "来自:" + note.url; // setting source url
 	}
 
 	return that;
@@ -143,7 +220,8 @@ window.onload = function(){
 					/*waiting for db to be ready.*/
 					var timedDB = setTimeout(function(){
 						if(db.db){
-							db.getItem(bv.addItemToView)
+							// get the first 5 items
+							db.getItem(15, bv.addItemToView);
 							clearTimeout(timedDB);
 						}	
 					}, 200);
