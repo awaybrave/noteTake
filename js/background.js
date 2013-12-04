@@ -1,15 +1,3 @@
-/*该产生id的办法在浏览器关闭后，background脚本就会
-停止执行，因此，每次都会从0开始计算。因此下次会有些
-笔记没法保存到数据库。*/
-/*
-var counter = function(){
-	var count = 0;
-	return function(){
-		return count++;
-	}
-}();
-*/
-
 var getId = function(time){
 	var result = "";
 	//var time = new Date();
@@ -36,7 +24,7 @@ var getId = function(time){
 var dataBaseFunction = function(){
 	var that = {}; 
 
-	that.dbName = "note";
+	that.dbName = "note1";
 	that.dbVersion = 1;
 	that.allItemsReady = false;
 	that.allItems = [];
@@ -165,13 +153,13 @@ window.onload = function(){
 			case "seeall":
 				if(!db.db){
 					/*waiting for db to be ready.*/
-					var timedDB = setTimeout(function(){
+					var timedDB = setInterval(function(){
 						if(db.db){
 							// get the first 5 items
 							db.getItem(bv.addItemToView, 5);
-							clearTimeout(timedDB);
+							clearInterval(timedDB);
 						}	
-					}, 200);
+					}, 10);
 				}
 				else
 					db.getItem(bv.addItemToView, 5);
@@ -195,15 +183,6 @@ window.onload = function(){
 									clearInterval(nextItems);	
 									break;
 								}
-								var currentItem = db.allItems.shift();
-								bv.addItemToView(currentItem[0], currentItem[1]);	
-								doneNum++;
-							}
-						}
-						else{
-							while(doneNum < 5){ 
-								if(db.allItems.length == 0)
-									break;
 								var currentItem = db.allItems.shift();
 								bv.addItemToView(currentItem[0], currentItem[1]);	
 								doneNum++;
