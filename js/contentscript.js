@@ -60,7 +60,18 @@ function enableSelection(event){
 	if(text){ 
 		/*set form data*/
 		var popup = new $.Popup();
-		popup.open("../html/form.html", "url");
+		//popup.open("../html/form.html", "url");
+		var form_html = "<form id='note-form'><p>摘抄：</p>" 
+			+ "<ul><li><span>摘抄时间：</span>" 
+			+ "<span id='note-form-date'></span></li>"
+			+ "<li><p class='note-item-titile'>摘抄内容</p>"
+			+ "<div id='note-form-content'></div></li>" 
+			+ "<li><a id='note-form-add'>继续添加</a></li>" 
+			+ "</ul>"
+			+ "<div><a id='note-item-confirm'>确认</a>"
+			+ "<a id='note-item-cancel'>取消</a></div>"; 
+		popup.open(form_html, "html");
+		/*end of setting form data*/
 
 		/*deal with text infomation*/
 		var newTextInfo = {};
@@ -71,7 +82,7 @@ function enableSelection(event){
 		textCapture.dealInfo(newTextInfo);
 		/*end*/
 
-		var note_form_timer = setTimeout(function(){
+		var note_form_timer = setInterval(function(){
 			if($("#note-form").size() > 0){ 
 				/*diplay the createTime and all texts that 
 				  are already captured and stored.
@@ -122,7 +133,7 @@ function enableSelection(event){
 					popup.close();	
 				});
 
-				clearTimeout(note_form_timer);
+				clearInterval(note_form_timer);
 			}
 		}, 100); 
 	}

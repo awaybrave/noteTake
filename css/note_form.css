@@ -1,19 +1,23 @@
-#note-form form{
+#note-form{
 	width: 300px;
 	height: 400px;
 }
 
-#note-form form .note-item-title{
+#note-form .note-item-title{
 	color : #ccc; 
 	margin: 10px 0;
 }
 
-#note-form form li{
+#note-form li{
 	list-style: none;	
 }
 
-#note-form form textarea{
+#note-form textarea{
 	width: 100%;
+}
+
+#note-form .note-paragraph{
+	height: 3em;
 }
 
 
