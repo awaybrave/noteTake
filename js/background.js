@@ -25,7 +25,7 @@ var dataBaseFunction = function(){
 	var that = {}; 
 
 	that.dbName = "note1";
-	that.dbVersion = 1;
+	that.dbVersion = 2;
 	that.allItemsReady = false;
 	that.allItems = [];
 
@@ -42,11 +42,13 @@ var dataBaseFunction = function(){
 
 		that.request.onupgradeneeded = function(event){
 			that.db = event.target.result;
-			that.objectStore = that.db.createObjectStore("notes", {keyPath: "notesId"});
-			that.objectStore.createIndex("content", "content", {unique:false});	
-			that.objectStore.createIndex("createTime", "createTime", {unique:true});	
-			that.objectStore.createIndex("url", "url");
+			//create note objectStore;
+			var obsNote = that.db.createObjectStore("notes", {keyPath: "notesId"});
+			obsNote.createIndex("createTime", "createTime", {unique:true});	
+			obsNote.createIndex("url", "url");
 		};
+		if(!localStorage.getItem("kwcount"))
+			localStorage.setItem("kwcount", 0);
 	}
 
 	that.addItem = function(item){ 
@@ -79,6 +81,15 @@ var dataBaseFunction = function(){
 		};
 	};
 
+	that.getKeyWords = function(){
+		var kwc = localStorage.getItem("kwcount");
+		var result = [];
+		for(var i = 0; i < kwc; i++){
+			result.push(localStorage.getItem("kw"+i));	
+		}
+		return result;
+	}
+
 	return that;
 };
 
@@ -103,7 +114,7 @@ var backgroundView = function(){
 		}
 		var urlBlock = cloneBlock.getElementsByClassName("url")[0];
 		urlBlock.innerHTML = "来自:" + note.url; // setting source url
-	}
+	};
 
 	return that;
 }
@@ -132,6 +143,9 @@ window.onload = function(){
 						/*add an item into the notes database*/
 						db.addItem(request.note);
 						sendResponse({result: true});		
+					}
+					if(request.task == 'getKeyWords'){ 
+						sendResponse(db.getKeyWords());
 					}
 				}
 				if(request.sender == 'extension'){

@@ -44,7 +44,53 @@ function currentNoteStorage(){
 	return that;
 }
 
+function keyWordsGet(){
+	var info = {};
+	info.done = false;
+	info.start = false;
+	info.dataKW = [];
+	info.undataKW = [];
+
+	var that = {};
+	that.isDone = function(){
+		return info.done;
+	};
+
+	that.isStart = function(){
+		return info.start;
+	};
+
+	that.requestKeyWords = function(){
+		info.start = true;
+		var msg = {};
+		msg.sender = "content";
+		msg.receiver = "background";
+		msg.task = "getKeyWords";
+		chrome.runtime.sendMessage(msg, 
+			function(response){ 
+				info.dataKW = response;	
+				//alert(info.dataKW);
+				info.done = true;
+			}
+		); 
+
+	};
+
+	that.getKeyWords = function(){
+		return info.dataKW;
+	};
+
+	that.addKeyWords = function(newkw){
+		for(var i in newkw){
+			info.undataKW.push(newkw[i]);
+		}
+	};
+
+	return that;
+}
+
 var textCapture = currentNoteStorage();
+var keyWordsAbout = keyWordsGet();
 
 function enableSelection(event){ 
 
@@ -68,6 +114,7 @@ function enableSelection(event){
 			+ "<div id='note-form-content'></div></li>" 
 			+ "<li><a id='note-form-add'>继续添加</a></li>" 
 			+ "</ul>"
+			+ "<div id='note-form-kw'></div>"
 			+ "<div><a id='note-item-confirm'>确认</a>"
 			+ "<a id='note-item-cancel'>取消</a></div>"; 
 		popup.open(form_html, "html");
@@ -152,6 +199,8 @@ function enableSelection(event){
 						/*use event bubbling to capture a mouse behaviour 
 						on all dom elements of a page*/
 						body.addEventListener("mouseup", enableSelection);
+						if(!keyWordsAbout.isStart())
+							keyWordsAbout.requestKeyWords();
 					}
 				}
 			}
