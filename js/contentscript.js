@@ -69,7 +69,6 @@ function keyWordsGet(){
 		chrome.runtime.sendMessage(msg, 
 			function(response){ 
 				info.dataKW = response;	
-				//alert(info.dataKW);
 				info.done = true;
 			}
 		); 
@@ -114,7 +113,9 @@ function enableSelection(event){
 			+ "<div id='note-form-content'></div></li>" 
 			+ "<li><a id='note-form-add'>继续添加</a></li>" 
 			+ "</ul>"
-			+ "<div id='note-form-kw'></div>"
+			+ "<div id='note-form-kw'>"
+			+ "<p><label>关键字:<input type='text'/></label></p>"
+			+ "</div>"
 			+ "<div><a id='note-item-confirm'>确认</a>"
 			+ "<a id='note-item-cancel'>取消</a></div>"; 
 		popup.open(form_html, "html");
@@ -141,6 +142,18 @@ function enableSelection(event){
 						"<div class='note-paragraph'>" + storedTexts[i]+ "</div>"); 
 				}
 				/*end*/
+				/*set the keywords from the background.
+				If the keywords are not ready, show the waiting state, 
+				otherwise, display all the keywords*/
+					
+				var waitKeyWords = setInterval(function(){
+					if(keyWordsAbout.isDone()){
+						var allKeyWords = keyWordsAbout.getKeyWords();
+						for(var i = 0; i < allKeyWords.length; i++)
+							$("#note-form-kw").append("<span>"+allKeyWords[i]+"</span>");
+						clearInterval(waitKeyWords);
+					}
+				}, 20);
 
 				/*set confirm button clicking to send message 
 				to background*/

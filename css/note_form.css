@@ -20,4 +20,12 @@
 	height: 3em;
 }
 
+#note-form #note-form-kw{
+	height: 100px;
+}
+
+#note-form #note-form-kw span{
+	border: 1px solid black;
+	margin: 0 5px;
+}
 
