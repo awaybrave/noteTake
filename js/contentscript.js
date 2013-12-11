@@ -1,3 +1,9 @@
+function gbclear(){
+	for(var i = 0; i < arguments.length; i++){
+		arguments[i].clear();
+	}
+};
+
 function getTime(){
 	var result = "";
 	var time = new Date();
@@ -87,6 +93,14 @@ function keyWordsGet(){
 				result.push(info.dataKW[i]);
 		}
 		return result;
+	};
+
+	that.getCanKeyWords = function(){
+		return info.cankw;
+	};
+
+	that.getNewKeyWords = function(){
+		return info.undataKW;
 	};
 
 	that.addKeyWords = function(newkw){
@@ -185,13 +199,25 @@ function enableSelection(event){
 						var allKeyWords = keyWordsAbout.getKeyWords();
 						for(var i = 0; i < allKeyWords.length; i++)
 							$("#note-can-kw").append("<span>"+allKeyWords[i]+"</span>");
+						$("#note-can-kw span").click(function(){
+							var newkw = $(this).text();
+							if(keyWordsAbout.addKeyWords(newkw))
+								$("#note-chosen-kw").append("<span>" + newkw + "</span>"); 
+						});
 						$("#nt-kw-in").keyup(function(event){
 							//alert(event.target.value);	
 							var similarw = keyWordsAbout.getSimilarKW(event.target.value);
 							$("#note-can-kw").empty();
-							for(var i in similarw)
+							for(var i in similarw){
 								$("#note-can-kw").append("<span>"+similarw[i]+"</span>");
+								$("#note-can-kw span").click(function(){
+									var newkw = $(this).text();
+									if(keyWordsAbout.addKeyWords(newkw))
+										$("#note-chosen-kw").append("<span>" + newkw + "</span>"); 
+								});
+							}
 						});
+						$("#note-form-kw button").attr("enable", true);
 						$("#note-form-kw button").click(function(){
 							var newkw = $("#nt-kw-in").val();
 							if(newkw){
@@ -199,12 +225,10 @@ function enableSelection(event){
 									$("#note-chosen-kw").append("<span>" + newkw + "</span>");
 							}
 						});
-						$("#note-can-kw span").click(function(){
-							var newkw = $(this).text();
-							if(keyWordsAbout.addKeyWords(newkw))
-								$("#note-chosen-kw").append("<span>" + newkw + "</span>"); 
-						});
 						clearInterval(waitKeyWords);
+					}
+					else{
+						$("#note-form-kw button").attr("enable", false);
 					}
 				}, 20);
 
@@ -219,34 +243,33 @@ function enableSelection(event){
 					note_msg.note.content = storedTexts;
 					note_msg.note.createTime = textCapture.getTime();
 					note_msg.note.url = textCapture.getUrl();
-					//未处理关键字
+					note_msg.note.canKW = keyWordsAbout.getCanKeyWords();
+					note_msg.note.newKW = keyWordsAbout.getNewKeyWords();
 					chrome.runtime.sendMessage(note_msg, 
 						function(){ 
 							//Clear the textCapture object;
-							textCapture.clear();
-							keyWordsAbout.clear();
+							gbclear(textCapture, keyWordsAbout);
 						}
 					); 
 					popup.close(); 
 					var body = document.getElementsByTagName("body")[0]; 
 					body.removeEventListener("mouseup", enableSelection); 
-					keyWordsAbout.clear();
 				});
 				/*end*/
 
 				/*set the cancel button clicking to close the form
 				 and detach the handler of capturing text*/
 				$("#note-item-cancel").click(function(){
-					textCapture.clear();
 					var body = document.getElementsByTagName("body")[0]; 
 					body.removeEventListener("mouseup", enableSelection);
 					popup.close();	
-					keyWordsAbout.clear();
+					gbclear(textCapture, keyWordsAbout);
 				});
 				/*end*/
 
 				$("#note-form-add").click(function(){
 					popup.close();	
+					gbclear(keyWordsAbout);
 				});
 
 				clearInterval(note_form_timer);
