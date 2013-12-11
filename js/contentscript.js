@@ -48,8 +48,9 @@ function keyWordsGet(){
 	var info = {};
 	info.done = false;
 	info.start = false;
-	info.dataKW = [];
-	info.undataKW = [];
+	info.dataKW = [];  // store all the keywords from bg;
+	info.undataKW = []; // store the new adding keywords
+	info.cankw = []; // store all the chosen kw from bg;
 
 	var that = {};
 	that.isDone = function(){
@@ -79,10 +80,38 @@ function keyWordsGet(){
 		return info.dataKW;
 	};
 
-	that.addKeyWords = function(newkw){
-		for(var i in newkw){
-			info.undataKW.push(newkw[i]);
+	that.getSimilarKW = function(word){
+		var result = [];
+		for(var i = 0; i < info.dataKW.length; i++){
+			if(info.dataKW[i].substr(0, word.length) == word)
+				result.push(info.dataKW[i]);
 		}
+		return result;
+	};
+
+	that.addKeyWords = function(newkw){
+		var i, j;
+		for(i = 0; i < info.dataKW.length; i++){
+			if(info.dataKW[i] == newkw){
+				for(j = 0; j < info.cankw.length; j++){
+					if(info.cankw[j] == newkw)
+						return false;
+				}
+				info.cankw.push(newkw);
+				return true;
+			}
+		}
+		for(i = 0; i < info.undataKW.length; i++){
+			if(info.undataKW[i] == newkw)
+				return false;
+		}
+		info.undataKW.push(newkw);
+		return true;
+	};
+
+	that.clear = function(){
+		info.cankw = [];
+		info.undataKW = [];
 	};
 
 	return that;
@@ -106,7 +135,7 @@ function enableSelection(event){
 		/*set form data*/
 		var popup = new $.Popup();
 		//popup.open("../html/form.html", "url");
-		var form_html = "<form id='note-form'><p>摘抄：</p>" 
+		var form_html = "<div id='note-form'><p>摘抄：</p>" 
 			+ "<ul><li><span>摘抄时间：</span>" 
 			+ "<span id='note-form-date'></span></li>"
 			+ "<li><p class='note-item-titile'>摘抄内容</p>"
@@ -114,10 +143,15 @@ function enableSelection(event){
 			+ "<li><a id='note-form-add'>继续添加</a></li>" 
 			+ "</ul>"
 			+ "<div id='note-form-kw'>"
-			+ "<p><label>关键字:<input type='text'/></label></p>"
+			+ "<p><label>关键字:" 
+			+ "<input type='text' id='nt-kw-in'/></label>"
+			+ "<button>加入关键字</button></p>"
+			+ "<div id='note-chosen-kw'>已选择：</div>"
+			+ "<div id='note-can-kw'></div>"
 			+ "</div>"
 			+ "<div><a id='note-item-confirm'>确认</a>"
-			+ "<a id='note-item-cancel'>取消</a></div>"; 
+			+ "<a id='note-item-cancel'>取消</a></div>"
+			+ "</div>"; 
 		popup.open(form_html, "html");
 		/*end of setting form data*/
 
@@ -150,7 +184,26 @@ function enableSelection(event){
 					if(keyWordsAbout.isDone()){
 						var allKeyWords = keyWordsAbout.getKeyWords();
 						for(var i = 0; i < allKeyWords.length; i++)
-							$("#note-form-kw").append("<span>"+allKeyWords[i]+"</span>");
+							$("#note-can-kw").append("<span>"+allKeyWords[i]+"</span>");
+						$("#nt-kw-in").keyup(function(event){
+							//alert(event.target.value);	
+							var similarw = keyWordsAbout.getSimilarKW(event.target.value);
+							$("#note-can-kw").empty();
+							for(var i in similarw)
+								$("#note-can-kw").append("<span>"+similarw[i]+"</span>");
+						});
+						$("#note-form-kw button").click(function(){
+							var newkw = $("#nt-kw-in").val();
+							if(newkw){
+								if(keyWordsAbout.addKeyWords(newkw))
+									$("#note-chosen-kw").append("<span>" + newkw + "</span>");
+							}
+						});
+						$("#note-can-kw span").click(function(){
+							var newkw = $(this).text();
+							if(keyWordsAbout.addKeyWords(newkw))
+								$("#note-chosen-kw").append("<span>" + newkw + "</span>"); 
+						});
 						clearInterval(waitKeyWords);
 					}
 				}, 20);
@@ -171,11 +224,13 @@ function enableSelection(event){
 						function(){ 
 							//Clear the textCapture object;
 							textCapture.clear();
+							keyWordsAbout.clear();
 						}
 					); 
 					popup.close(); 
 					var body = document.getElementsByTagName("body")[0]; 
 					body.removeEventListener("mouseup", enableSelection); 
+					keyWordsAbout.clear();
 				});
 				/*end*/
 
@@ -186,6 +241,7 @@ function enableSelection(event){
 					var body = document.getElementsByTagName("body")[0]; 
 					body.removeEventListener("mouseup", enableSelection);
 					popup.close();	
+					keyWordsAbout.clear();
 				});
 				/*end*/
 
