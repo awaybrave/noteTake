@@ -57,6 +57,27 @@ var dataBaseFunction = function(){
 		/*set createTime and notesId*/
 		var time = new Date();
 		item.notesId = getId(time);
+		//deal with the key words;
+		item.kw = [];
+		var i, j;
+		var kwcount = parseInt(localStorage.getItem("kwcount"));
+		for(i = 0; i < item.canKW.length; i++){
+			for(j = 0; j < kwcount; j++){
+				var curkw = localStorage.getItem("kw"+j);
+				if(item.canKW[i] == curkw){
+					item.kw.push(j);
+					break;
+				}
+			}
+		}
+		for(i = 0; i < item.newKW.length; i++){
+			item.kw.push(i+kwcount);		
+			localStorage.setItem("kw" + (i+kwcount), item.newKW[i]);
+		}
+		localStorage.setItem("kwcount", kwcount+i);
+		item.kw.sort();
+		delete(item.canKW);
+		delete(item.newKW);
 		os.add(item);	
 	};
 

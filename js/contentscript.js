@@ -123,6 +123,11 @@ function keyWordsGet(){
 		return true;
 	};
 
+	that.addNewToData = function(){
+		for(var i = 0; i < info.undataKW.length; i++)
+			info.dataKW.push(info.undataKW[i]);
+	};
+
 	that.clear = function(){
 		info.cankw = [];
 		info.undataKW = [];
@@ -248,6 +253,7 @@ function enableSelection(event){
 					chrome.runtime.sendMessage(note_msg, 
 						function(){ 
 							//Clear the textCapture object;
+							keyWordsAbout.addNewToData();
 							gbclear(textCapture, keyWordsAbout);
 						}
 					); 
