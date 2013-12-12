@@ -30,12 +30,26 @@ function currentNoteStorage(){
 			info.url = obj.url;
 	};
 
-	that.clear = function(){
-		info.texts = [];	
-		info.createTime = undefined;
+	that.deleteText = function(num){
+		if(num < info.texts.length){
+			var count = 0;
+			var i = 0;
+			while(count < num+1){
+				if(info.texts[i] != undefined)
+					count++;
+				i++;
+			}
+			info.texts[i-1] = undefined;
+		}
 	};
 
 	that.getText = function(){
+		var count = 0;
+		for(var i = 0; i < info.texts.length; i++){
+			if(info.texts[i] != undefined)
+				info.texts[count++] = info.texts[i];
+		}
+		info.texts.splice(count);//delete the undefine elements;
 		return info.texts;
 	};
 
@@ -45,7 +59,12 @@ function currentNoteStorage(){
 
 	that.getUrl = function(){
 		return info.url;
-	}
+	};
+
+	that.clear = function(){
+		info.texts = [];	
+		info.createTime = undefined;
+	};
 
 	return that;
 }
@@ -192,13 +211,32 @@ function enableSelection(event){
 				var storedTexts = textCapture.getText();
 				for(var i = 0; i < storedTexts.length; i++){
 					$("#note-form-content").append(
-						"<div class='note-paragraph'>" + storedTexts[i]+ "</div>"); 
+						"<div class='note-paragraph'><p>" 
+						+ storedTexts[i] 
+						+ "<div class='note-par-del fn-hide'>删除</div>"
+						+ "</p></div>"); 
 				}
+				var delBtn = document.getElementsByClassName("note-par-del");
+				for(var i = 0; i < delBtn.length; i++){
+					delBtn[i].onclick = function(num){
+						return function(){
+							textCapture.deleteText(num);	
+							var delNode = this.parentNode;
+							delNode.parentNode.removeChild(delNode);
+						};
+					}(i);
+				}
+				$(".note-paragraph").mouseover(function(){
+					$(this).children(".note-par-del").removeClass("fn-hide");
+				});
+				$(".note-paragraph").mouseout(function(){
+					$(this).children(".note-par-del").addClass("fn-hide"); 
+				}); 
 				/*end*/
+
 				/*set the keywords from the background.
 				If the keywords are not ready, show the waiting state, 
-				otherwise, display all the keywords*/
-					
+				otherwise, display all the keywords*/ 
 				var waitKeyWords = setInterval(function(){
 					if(keyWordsAbout.isDone()){
 						var allKeyWords = keyWordsAbout.getKeyWords();
@@ -245,7 +283,7 @@ function enableSelection(event){
 					note_msg.receiver = "background";
 					note_msg.task = "addContent";
 					note_msg.note = {};
-					note_msg.note.content = storedTexts;
+					note_msg.note.content = textCapture.getText();
 					note_msg.note.createTime = textCapture.getTime();
 					note_msg.note.url = textCapture.getUrl();
 					note_msg.note.canKW = keyWordsAbout.getCanKeyWords();
