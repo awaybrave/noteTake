@@ -32,14 +32,7 @@ function currentNoteStorage(){
 
 	that.deleteText = function(num){
 		if(num < info.texts.length){
-			var count = 0;
-			var i = 0;
-			while(count < num+1){
-				if(info.texts[i] != undefined)
-					count++;
-				i++;
-			}
-			info.texts[i-1] = undefined;
+			info.texts[num] = undefined; 
 		}
 	};
 
@@ -147,6 +140,22 @@ function keyWordsGet(){
 			info.dataKW.push(info.undataKW[i]);
 	};
 
+	that.deleteKW = function(kw){
+		var i;
+		for(i = 0; i < info.undataKW.length; i++){
+			if(kw == info.undataKW[i]){
+				info.undataKW.splice(i, 1);
+				return;
+			} 
+		}
+		for(i = 0; i <info.cankw.length; i++){
+			if(kw == info.cankw[i]){
+				info.cankw.splice(i,1);	
+				return;
+			}
+		}
+	};
+
 	that.clear = function(){
 		info.cankw = [];
 		info.undataKW = [];
@@ -244,8 +253,13 @@ function enableSelection(event){
 							$("#note-can-kw").append("<span>"+allKeyWords[i]+"</span>");
 						$("#note-can-kw span").click(function(){
 							var newkw = $(this).text();
-							if(keyWordsAbout.addKeyWords(newkw))
+							if(keyWordsAbout.addKeyWords(newkw)){
 								$("#note-chosen-kw").append("<span>" + newkw + "</span>"); 
+								$("#note-chosen-kw span").click(function(){
+									keyWordsAbout.deleteKW($(this).text());
+									this.parentNode.removeChild(this);
+								});
+							}
 						});
 						$("#nt-kw-in").keyup(function(event){
 							//alert(event.target.value);	
@@ -255,8 +269,13 @@ function enableSelection(event){
 								$("#note-can-kw").append("<span>"+similarw[i]+"</span>");
 								$("#note-can-kw span").click(function(){
 									var newkw = $(this).text();
-									if(keyWordsAbout.addKeyWords(newkw))
+									if(keyWordsAbout.addKeyWords(newkw)){
 										$("#note-chosen-kw").append("<span>" + newkw + "</span>"); 
+										$("#note-chosen-kw span").click(function(){
+											keyWordsAbout.deleteKW($(this).text());
+											this.parentNode.removeChild(this);
+										});
+									}
 								});
 							}
 						});
@@ -264,8 +283,12 @@ function enableSelection(event){
 						$("#note-form-kw button").click(function(){
 							var newkw = $("#nt-kw-in").val();
 							if(newkw){
-								if(keyWordsAbout.addKeyWords(newkw))
+								if(keyWordsAbout.addKeyWords(newkw)){
 									$("#note-chosen-kw").append("<span>" + newkw + "</span>");
+									$("#note-chosen-kw span").click(function(){
+										keyWordsAbout.deleteKW($(this).text());
+									});
+								}
 							}
 						});
 						clearInterval(waitKeyWords);
