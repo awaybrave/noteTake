@@ -1,31 +1,82 @@
 #note-form{
 	width: 600px;
 	height: 400px;
+	color: #36332a;
+	background: #f1efe8;
+	font-family: Verdana, "Lucida Grande", Arial, Helvetica, sans-serif;
 }
 
-#note-form .note-item-title{
-	color : #ccc; 
-	margin: 10px 0;
+#note-form h1{
+	color: #ffffff;
+	background: #272727;
+	text-align: center;
 }
 
 #note-form li{
+	color: #227115;
 	list-style: none;	
+	padding-left: 5px;
 }
 
-#note-form textarea{
-	width: 100%;
+fieldset{ 
+	margin: 5px 5px 10px 5px; 
+	border: 2px solid #616130;
+	border-radius: 5px;
+	width: 550px;	
 }
 
-#note-form .note-paragraph{
-	height: 3em;
+#note-form-content{
+	cursor: pointer; 
 }
+
+.note-paragraph{
+	border-bottom: 1px solid #dedebe;
+}
+
 
 #note-form #note-form-kw{
 	height: 100px;
 }
 
 #note-form #note-form-kw span{
-	border: 1px solid black;
 	margin: 0 5px;
 }
 
+#note-chosen-kw{
+	margin: 10px auto;
+	border-bottom: 2px solid #dedebe;
+}
+
+#note-chosen-kw span{
+	background: #af670a;	
+	color: white;
+	cursor: pointer;
+	padding: 1px 2px;
+}
+
+#note-can-kw span{
+	background: #af670a;	
+	color: white;
+	cursor: pointer;
+}
+
+#note-button{
+	width: 200px;
+	margin: 10px auto;
+}
+
+#note-button a{ 
+	color: white;
+	background: #707038;	
+	cursor: pointer;
+	padding: auto 1px;
+	margin: auto 5px;
+	border: 2px solid #707038;
+	border-radius: 2px;
+}
+
+#note-button a:hover{
+	color: #F1E1FF;
+	background: #616130;
+	border: 2px solid #616130;
+}
