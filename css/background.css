@@ -1,5 +1,5 @@
 body{
-	background: #dcdcdc;
+/*	background: #dcdcdc;*/
 }
 
 .navigation{
@@ -35,4 +35,13 @@ body{
 .item{
 	background: #e9967a;
 	margin: 10px 0;
+}
+
+.node{
+	stroke: #fff;
+	stroke-width: 1.5px;
+}
+.link{
+	stroke: #999;
+	stroke-opacity: 0.6;
 }

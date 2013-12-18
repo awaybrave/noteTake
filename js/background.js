@@ -140,6 +140,7 @@ var backgroundView = function(){
 			for(var i = 0; i < value.length; i++){
 				var newnode = {
 					"name": value[i],
+					"type": 0,
 					group: i+1 
 				};
 				_nwjson.nodes.push(newnode);
@@ -150,6 +151,7 @@ var backgroundView = function(){
 				// if value is an object, then it is a note.
 				var newnode = {
 					"id": value.key,
+					"type": 1,
 					"group"	: 0
 				}; 
 				_nwjson.nodes.push(newnode);
@@ -191,7 +193,7 @@ var backgroundView = function(){
 								.data(_nwjson.nodes)
 								.enter().append("circle")
 								.attr("class", "node")
-								.attr("r", 5)
+								.attr("r", function(d){return d.type == 0 ? 10 : 5;})
 								.style("fill", function(d) {return color(d.group);})
 								.call(force.drag);
 				node.append("title")			
