@@ -211,7 +211,7 @@ function enableSelection(event){
 			+ "<button type='button' class='btn btn-default' data-dismiss='modal'>Close</button>"
 			+ "<button type='button' class='btn btn-primary'>Save changes</button>"
 			+ "</div></div></div></div>";
-		if($("#kwj-note-fomr").size() == 0)
+		if($("#kwj-note-form").size() == 0)
 			$("body").append(block);
 		$("#kwj-note-form").modal({"backdrop" : "static"});
 		/*end of setting form data*/
