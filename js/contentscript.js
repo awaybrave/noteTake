@@ -183,12 +183,12 @@ function enableSelection(event){
 		var popup = new $.Popup();
 		//popup.open("../html/form.html", "url");
 		var form_html = "<div id='note-form'><h1>摘 抄</h1>" 
-			+ "<ul><li><span>摘抄时间：</span>" 
-			+ "<span id='note-form-date'></span></li>"
-			+ "<li><fieldset id='note-form-content'>"
+			+ "<div id='createtime'><span>摘抄时间：</span>" 
+			+ "<span id='note-form-date'></span></div>"
+			+ "<fieldset>"
 			+ "<legend>摘抄内容</legend>"
-			+ "</fieldset></li>" 
-			+ "</ul>"
+			+ "<div id='note-form-content'></div>"
+			+ "</fieldset>" 
 			+ "<fieldset id='note-form-kw'>"
 			+ "<legend>关键字</legend>" 
 			+ "<label>输入<input type='text' id='nt-kw-in'/></label>"
