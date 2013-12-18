@@ -80,28 +80,6 @@ var dataBaseFunction = function(){
 		os.add(item);	
 	};
 
-	/*
-	that.getItem = function(func, number){ 
-		var os = that.db.transaction("notes").objectStore("notes");
-		var itemsCount = 0;
-		os.openCursor().onsuccess = function(event){
-			var cursor = event.target.result;	
-			if(cursor){
-				if(itemsCount < number){
-					func(cursor.key, cursor.value); 
-					itemsCount++;
-				}
-				else{
-					that.allItems.push([cursor.key, cursor.value]);	
-				}
-				cursor.continue();
-			}
-			else{
-				
-			}
-		};
-	};
-	*/
 	
 	that.getKeyWords = function(){
 		var kwc = localStorage.getItem("kwcount");
@@ -112,10 +90,29 @@ var dataBaseFunction = function(){
 		return result;
 	}
 
+	that.getNetwork = function(func){ 
+		func(that.getKeyWords()); // sending keywords
+
+		var os = that.db.transaction("notes").objectStore("notes");
+		os.openCursor().onsuccess = function(event){
+			var cursor = event.target.result;
+			if(cursor){
+				func(cursor); // sending notes
+				cursor.continue();
+			}
+			else
+				func(false);
+		};
+	};
+
 	return that;
 };
 
 var backgroundView = function(){
+	var _nwjson = {
+		"nodes"	:[],
+		"links" :[]
+	};
 	var that = {};
 
 	that.addItemToView = function(key, note){
@@ -137,6 +134,80 @@ var backgroundView = function(){
 		var urlBlock = cloneBlock.getElementsByClassName("url")[0];
 		urlBlock.innerHTML = "来自:" + note.url; // setting source url
 	};
+	
+	that.pictureNetwork = function(value){
+		if(value.constructor == Array){ 
+			for(var i = 0; i < value.length; i++){
+				var newnode = {
+					"name": value[i],
+					group: i+1 
+				};
+				_nwjson.nodes.push(newnode);
+			}
+		}
+		else{
+			if(value){
+				// if value is an object, then it is a note.
+				var newnode = {
+					"id": value.key,
+					"group"	: 0
+				}; 
+				_nwjson.nodes.push(newnode);
+				if(value.value.kw){
+					for(var i = 0; i < value.value.kw.length; i++){
+						var kwid = value.value.kw[i];
+						var newlink = {
+							"source": _nwjson.nodes.length-1, // the last node 
+							"target": kwid,
+							"value": 1
+						};
+						_nwjson.links.push(newlink);
+					}
+				}
+			}
+			else{
+				//receive an empty object, then start to paint;
+				var width = 960,
+					height = 400;
+				var color  = d3.scale.category20();
+
+				var force = d3.layout.force()
+								.charge(-120)
+								.linkDistance(30)
+								.size([width, height])
+								.nodes(_nwjson.nodes)
+								.links(_nwjson.links)
+								.start();
+
+				var svg = d3.select("#main-content-network").append("svg")
+							.attr("width", width)
+							.attr("height", height);
+				var link = svg.selectAll(".link")
+								.data(_nwjson.links)
+								.enter().append("line")
+								.attr("class", "link")
+								.style("stroke-width", function(d){return Math.sqrt(d.value);});
+				var node = svg.selectAll(".node")
+								.data(_nwjson.nodes)
+								.enter().append("circle")
+								.attr("class", "node")
+								.attr("r", 5)
+								.style("fill", function(d) {return color(d.group);})
+								.call(force.drag);
+				node.append("title")			
+					.text(function(d){if(d.name) return d.name; else return d.id});
+
+				force.on("tick", function(){
+					link.attr("x1", function(d){return d.source.x;})		
+						.attr("y1", function(d){return d.source.y;})	
+						.attr("x2", function(d){return d.target.x;})	
+						.attr("y2", function(d){return d.target.y;})	
+					node.attr("cx", function(d){return d.x;})
+						.attr("cy", function(d){return d.y;});
+				});
+					}
+				}
+			};
 
 	return that;
 }
@@ -186,54 +257,12 @@ window.onload = function(){
 		$("#"+"main-content"+mode).removeClass("fn-hide");	
 
 		switch(mode){
-			/*
-			case "seeall":
-				if(!db.db){
-					var timedDB = setInterval(function(){
-						if(db.db){
-							db.getItem(bv.addItemToView, 5);
-							clearInterval(timedDB);
-						}	
-					}, 10);
-				}
-				else
-					db.getItem(bv.addItemToView, 5);
-				var showEarlyButton = document.getElementById("view-continue");
-				showEarlyButton.onclick = function(){
-					var doneNum = 0;
-					var nextItems = setInterval(function(){
-						if(doneNum == 5){
-							clearInterval(nextItems);	
-							return;
-						}
-						if(db.allItemsReady){
-							if(db.allItems.length == 0){
-								// warning of no more earlier notes;
-								alert("没有更多笔记了！");
-								clearInterval(nextItems);	
-								return;
-							}
-							while(doneNum < 5){
-								if(db.allItems.length == 0){
-									clearInterval(nextItems);	
-									break;
-								}
-								var currentItem = db.allItems.shift();
-								bv.addItemToView(currentItem[0], currentItem[1]);	
-								doneNum++;
-							}
-						}
-					}, 50);
-				};
-
-				break;
-				*/
 			case "network":
 				if(!db.db){
 					/*waiting for db to be ready.*/
 					var timedDB = setInterval(function(){
 						if(db.db){
-							// get the first 5 items
+							db.getNetwork(bv.pictureNetwork);
 							clearInterval(timedDB);
 						}	
 					}, 10);
