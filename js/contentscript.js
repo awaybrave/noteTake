@@ -180,9 +180,15 @@ function enableSelection(event){
 	var text = window.getSelection().toString();
 	if(text){ 
 		/*set form data*/
-		var popup = new $.Popup();
-		//popup.open("../html/form.html", "url");
-		var form_html = "<div id='note-form'><h1>摘 抄</h1>" 
+		var block = "<div class='modal fade' id='kwj-note-form'"
+			+ "tabindex='-1' aria-hidden='true' role='dialog' aria-labelledby='myModalLabel'>"
+			+ "<div class='modal-dialog'><div class='modal-content'>"
+			+ "<div class='modal-header'>"
+			+ "<button type='button' class='close' data-dismiss='modal' aria-hidden='true'>&times;</button>"
+			+ "<h4 class='modal-title' id='myModalLabel'>Modal title</h4>"
+			+ "</div>"
+			+ "<div class='modal-body'>"
+			+ "<div id='note-form'><h1>摘 抄</h1>" 
 			+ "<div id='createtime'><span>摘抄时间：</span>" 
 			+ "<span id='note-form-date'></span></div>"
 			+ "<fieldset>"
@@ -200,8 +206,13 @@ function enableSelection(event){
 			+ "<a id='note-item-confirm'>确认</a>"
 			+ "<a id='note-form-add'>继续添加</a>" 
 			+ "<a id='note-item-cancel'>取消</a></div>"
-			+ "</div>"; 
-		popup.open(form_html, "html");
+			+ "</div></div>"; 
+			+ "<div class='modal-footer'>"
+			+ "<button type='button' class='btn btn-default' data-dismiss='modal'>Close</button>"
+			+ "<button type='button' class='btn btn-primary'>Save changes</button>"
+			+ "</div></div></div></div>";
+		$("body").append(block);
+		$("#kwj-note-form").modal();
 		/*end of setting form data*/
 
 		/*deal with text infomation*/
@@ -320,7 +331,8 @@ function enableSelection(event){
 							gbclear(textCapture, keyWordsAbout);
 						}
 					); 
-					popup.close(); 
+					//popup.close(); 
+					$("#kwj-note-form").modal("hide");
 					var body = document.getElementsByTagName("body")[0]; 
 					body.removeEventListener("mouseup", enableSelection); 
 				});
@@ -331,13 +343,13 @@ function enableSelection(event){
 				$("#note-item-cancel").click(function(){
 					var body = document.getElementsByTagName("body")[0]; 
 					body.removeEventListener("mouseup", enableSelection);
-					popup.close();	
+					$("#kwj-note-form").modal("hide");
 					gbclear(textCapture, keyWordsAbout);
 				});
 				/*end*/
 
 				$("#note-form-add").click(function(){
-					popup.close();	
+					$("#kwj-note-form").modal("hide");
 					gbclear(keyWordsAbout);
 				});
 
