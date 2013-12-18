@@ -211,8 +211,9 @@ function enableSelection(event){
 			+ "<button type='button' class='btn btn-default' data-dismiss='modal'>Close</button>"
 			+ "<button type='button' class='btn btn-primary'>Save changes</button>"
 			+ "</div></div></div></div>";
-		$("body").append(block);
-		$("#kwj-note-form").modal();
+		if($("#kwj-note-fomr").size() == 0)
+			$("body").append(block);
+		$("#kwj-note-form").modal({"backdrop" : "static"});
 		/*end of setting form data*/
 
 		/*deal with text infomation*/
@@ -229,6 +230,7 @@ function enableSelection(event){
 				/*diplay the createTime and all texts that 
 				  are already captured and stored.
 				*/
+
 				$("#note-form-date").text(textCapture.getTime());
 				var storedTexts = textCapture.getText();
 				for(var i = 0; i < storedTexts.length; i++){
@@ -292,6 +294,7 @@ function enableSelection(event){
 								});
 							}
 						});
+
 						$("#note-form-kw button").attr("enable", true);
 						$("#note-form-kw button").click(function(){
 							var newkw = $("#nt-kw-in").val();
@@ -356,6 +359,13 @@ function enableSelection(event){
 				clearInterval(note_form_timer);
 			}
 		}, 100); 
+
+		$("#kwj-note-form").on('hidden.bs.modal', function(e){
+			$("#note-form-content").empty();
+			$("#note-chosen-kw").empty();
+			$("#note-can-kw").empty();
+		});
+
 	}
 }
 
