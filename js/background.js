@@ -26,7 +26,6 @@ var dataBaseFunction = function(){
 
 	that.dbName = "note1";
 	that.dbVersion = 2;
-	that.allItemsReady = false;
 	that.allItems = [];
 
 	that.open = function(){
@@ -81,6 +80,7 @@ var dataBaseFunction = function(){
 		os.add(item);	
 	};
 
+	/*
 	that.getItem = function(func, number){ 
 		var os = that.db.transaction("notes").objectStore("notes");
 		var itemsCount = 0;
@@ -97,11 +97,12 @@ var dataBaseFunction = function(){
 				cursor.continue();
 			}
 			else{
-				that.allItemsReady = true;
+				
 			}
 		};
 	};
-
+	*/
+	
 	that.getKeyWords = function(){
 		var kwc = localStorage.getItem("kwcount");
 		var result = [];
@@ -185,12 +186,11 @@ window.onload = function(){
 		$("#"+"main-content"+mode).removeClass("fn-hide");	
 
 		switch(mode){
+			/*
 			case "seeall":
 				if(!db.db){
-					/*waiting for db to be ready.*/
 					var timedDB = setInterval(function(){
 						if(db.db){
-							// get the first 5 items
 							db.getItem(bv.addItemToView, 5);
 							clearInterval(timedDB);
 						}	
@@ -226,6 +226,19 @@ window.onload = function(){
 					}, 50);
 				};
 
+				break;
+				*/
+			case "network":
+				if(!db.db){
+					/*waiting for db to be ready.*/
+					var timedDB = setInterval(function(){
+						if(db.db){
+							// get the first 5 items
+							clearInterval(timedDB);
+						}	
+					}, 10);
+				}
+				else
 				break;
 		}
 	}
