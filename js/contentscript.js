@@ -211,7 +211,7 @@ function enableSelection(event){
 			+ "<button type='button' class='btn btn-default' data-dismiss='modal'>Close</button>"
 			+ "<button type='button' class='btn btn-primary'>Save changes</button>"
 			+ "</div></div></div></div>";
-		if($("#kwj-note-form").size() == 0)
+		//if($("#kwj-note-form").size() == 0)
 			$("body").append(block);
 		$("#kwj-note-form").modal({"backdrop" : "static"});
 		/*end of setting form data*/
@@ -361,9 +361,27 @@ function enableSelection(event){
 		}, 100); 
 
 		$("#kwj-note-form").on('hidden.bs.modal', function(e){
-			$("#note-form-content").empty();
+		/*	$("#note-form-content").empty();
 			$("#note-chosen-kw").empty();
 			$("#note-can-kw").empty();
+		*/
+		/*	var form = document.getElementById("kwj-note-form");
+			form.parentNode.removeChild(form);
+		*/
+			var i;
+			var paragraphs = document.getElementsByClassName("note-paragraph");
+			for(i = 0; i < paragraphs.length; i++)
+				paragraphs[i].parentNode.removeChild(paragraphs[i]); 
+
+			var keywords = document.getElementById("note-can-kw")
+									.getElementsByTagName("span");
+			for(i = 0; i < keywords.length; i++)
+				keywords[i].parentNode.removeChild(keywords[i]); 
+
+			var ckeywords = document.getElementById("note-chosen-kw")
+									.getElementsByTagName("span");
+			for(i = 0; i < ckeywords.length; i++)
+				ckeywords[i].parentNode.removeChild(ckeywords[i]); 
 		});
 
 	}
