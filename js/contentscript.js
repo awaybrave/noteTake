@@ -180,15 +180,21 @@ function enableSelection(event){
 	var text = window.getSelection().toString();
 	if(text){ 
 		/*set form data*/
-		var popup = new $.Popup();
-		//popup.open("../html/form.html", "url");
-		var form_html = "<div id='note-form'><h1>摘 抄</h1>" 
-			+ "<ul><li><span>摘抄时间：</span>" 
-			+ "<span id='note-form-date'></span></li>"
-			+ "<li><fieldset id='note-form-content'>"
+		var block = "<div class='modal fade' id='kwj-note-form'"
+			+ "tabindex='-1' aria-hidden='true' role='dialog' aria-labelledby='myModalLabel'>"
+			+ "<div class='modal-dialog'><div class='modal-content'>"
+			+ "<div class='modal-header'>"
+			+ "<button type='button' class='close' data-dismiss='modal' aria-hidden='true'>&times;</button>"
+			+ "<h4 class='modal-title' id='myModalLabel'>Modal title</h4>"
+			+ "</div>"
+			+ "<div class='modal-body'>"
+			+ "<div id='note-form'><h1>摘 抄</h1>" 
+			+ "<div id='createtime'><span>摘抄时间：</span>" 
+			+ "<span id='note-form-date'></span></div>"
+			+ "<fieldset>"
 			+ "<legend>摘抄内容</legend>"
-			+ "</fieldset></li>" 
-			+ "</ul>"
+			+ "<div id='note-form-content'></div>"
+			+ "</fieldset>" 
 			+ "<fieldset id='note-form-kw'>"
 			+ "<legend>关键字</legend>" 
 			+ "<label>输入<input type='text' id='nt-kw-in'/></label>"
@@ -200,8 +206,14 @@ function enableSelection(event){
 			+ "<a id='note-item-confirm'>确认</a>"
 			+ "<a id='note-form-add'>继续添加</a>" 
 			+ "<a id='note-item-cancel'>取消</a></div>"
-			+ "</div>"; 
-		popup.open(form_html, "html");
+			+ "</div></div>"; 
+			+ "<div class='modal-footer'>"
+			+ "<button type='button' class='btn btn-default' data-dismiss='modal'>Close</button>"
+			+ "<button type='button' class='btn btn-primary'>Save changes</button>"
+			+ "</div></div></div></div>";
+		//if($("#kwj-note-form").size() == 0)
+			$("body").append(block);
+		$("#kwj-note-form").modal({"backdrop" : "static"});
 		/*end of setting form data*/
 
 		/*deal with text infomation*/
@@ -218,6 +230,7 @@ function enableSelection(event){
 				/*diplay the createTime and all texts that 
 				  are already captured and stored.
 				*/
+
 				$("#note-form-date").text(textCapture.getTime());
 				var storedTexts = textCapture.getText();
 				for(var i = 0; i < storedTexts.length; i++){
@@ -281,6 +294,7 @@ function enableSelection(event){
 								});
 							}
 						});
+
 						$("#note-form-kw button").attr("enable", true);
 						$("#note-form-kw button").click(function(){
 							var newkw = $("#nt-kw-in").val();
@@ -320,7 +334,8 @@ function enableSelection(event){
 							gbclear(textCapture, keyWordsAbout);
 						}
 					); 
-					popup.close(); 
+					//popup.close(); 
+					$("#kwj-note-form").modal("hide");
 					var body = document.getElementsByTagName("body")[0]; 
 					body.removeEventListener("mouseup", enableSelection); 
 				});
@@ -331,19 +346,44 @@ function enableSelection(event){
 				$("#note-item-cancel").click(function(){
 					var body = document.getElementsByTagName("body")[0]; 
 					body.removeEventListener("mouseup", enableSelection);
-					popup.close();	
+					$("#kwj-note-form").modal("hide");
 					gbclear(textCapture, keyWordsAbout);
 				});
 				/*end*/
 
 				$("#note-form-add").click(function(){
-					popup.close();	
+					$("#kwj-note-form").modal("hide");
 					gbclear(keyWordsAbout);
 				});
 
 				clearInterval(note_form_timer);
 			}
 		}, 100); 
+
+		$("#kwj-note-form").on('hidden.bs.modal', function(e){
+		/*	$("#note-form-content").empty();
+			$("#note-chosen-kw").empty();
+			$("#note-can-kw").empty();
+		*/
+		/*	var form = document.getElementById("kwj-note-form");
+			form.parentNode.removeChild(form);
+		*/
+			var i;
+			var paragraphs = document.getElementsByClassName("note-paragraph");
+			for(i = 0; i < paragraphs.length; i++)
+				paragraphs[i].parentNode.removeChild(paragraphs[i]); 
+
+			var keywords = document.getElementById("note-can-kw")
+									.getElementsByTagName("span");
+			for(i = 0; i < keywords.length; i++)
+				keywords[i].parentNode.removeChild(keywords[i]); 
+
+			var ckeywords = document.getElementById("note-chosen-kw")
+									.getElementsByTagName("span");
+			for(i = 0; i < ckeywords.length; i++)
+				ckeywords[i].parentNode.removeChild(ckeywords[i]); 
+		});
+
 	}
 }
 
