@@ -169,7 +169,7 @@ var backgroundView = function(){
 			}
 			else{
 				//receive an empty object, then start to paint;
-				var width = 960,
+				var width = 600,
 					height = 400;
 				var color  = d3.scale.category20();
 
@@ -199,6 +199,39 @@ var backgroundView = function(){
 				node.append("title")			
 					.text(function(d){if(d.name) return d.name; else return d.id});
 
+				/*
+				node.on("click", function(){
+					alert("hello");
+				});
+				*/
+
+				//drawing the keywords index.
+				var kw = [];
+				for(var i = 0; i < _nwjson.nodes.length; i++){
+					if(_nwjson.nodes[i].type != 0)
+						break;
+					kw.push(_nwjson.nodes[i].name);
+				}
+				var index_svg = d3.select("#main-content-index").append("svg");
+				var kw_index = index_svg.selectAll(".index")
+										.data(kw)
+										.enter().append("rect")
+										.attr("class", "index")
+										.attr("width", 20)
+										.attr("height", 10)
+										.attr("x", function(d, i){return 100*(i%5);})
+										.attr("y", function(d, i){return 40*parseInt(i/5);})
+										.style("fill", function(d, i){return color(i+1)})
+				
+				var kw_index_text = index_svg.selectAll(".index_text")
+											.data(kw)
+											.enter().append("text")
+											.attr("width", 20)
+											.attr("height", 10)
+											.attr("x", function(d, i){return 100*(i%5)+20;})
+											.attr("y", function(d, i){return 40*parseInt(i/5)+11;})
+											.text(function(d) {return d;});
+				
 				force.on("tick", function(){
 					link.attr("x1", function(d){return d.source.x;})		
 						.attr("y1", function(d){return d.source.y;})	
@@ -273,4 +306,4 @@ window.onload = function(){
 				break;
 		}
 	}
-} 
+}; 

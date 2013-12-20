@@ -1,5 +1,6 @@
 body{
 /*	background: #dcdcdc;*/
+	padding: 20px;
 }
 
 .navigation{
@@ -29,7 +30,7 @@ body{
 }
 
 .main-content{
-	width: 900px;
+	width: 700px;
 }
 
 .item{
@@ -44,4 +45,8 @@ body{
 .link{
 	stroke: #999;
 	stroke-opacity: 0.6;
+}
+.index{
+	width: 20px;
+	height: 10px;
 }

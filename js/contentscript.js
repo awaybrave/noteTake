@@ -334,7 +334,6 @@ function enableSelection(event){
 							gbclear(textCapture, keyWordsAbout);
 						}
 					); 
-					//popup.close(); 
 					$("#kwj-note-form").modal("hide");
 					var body = document.getElementsByTagName("body")[0]; 
 					body.removeEventListener("mouseup", enableSelection); 
@@ -361,13 +360,6 @@ function enableSelection(event){
 		}, 100); 
 
 		$("#kwj-note-form").on('hidden.bs.modal', function(e){
-		/*	$("#note-form-content").empty();
-			$("#note-chosen-kw").empty();
-			$("#note-can-kw").empty();
-		*/
-		/*	var form = document.getElementById("kwj-note-form");
-			form.parentNode.removeChild(form);
-		*/
 			var i;
 			var paragraphs = document.getElementsByClassName("note-paragraph");
 			for(i = 0; i < paragraphs.length; i++)
