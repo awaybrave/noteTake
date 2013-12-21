@@ -43,8 +43,9 @@ body{
 	stroke-width: 1.5px;
 }
 .link{
-	stroke: #999;
+	stroke: #ddd;
 	stroke-opacity: 0.6;
+	stroke-width: 2px;
 }
 .index{
 	width: 20px;
