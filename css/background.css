@@ -3,26 +3,34 @@ body{
 	padding: 20px;
 }
 
-.navigation{
-	width: 300px; 
-}
-
-.navigation ul{
-	width: 298px;
-	position: relative;
-	border: 1px solid black;
-}
-
-.navigation ul li{
-	list-style: none;
-	height: 50px;
-	background: #ccc; 
-	border-bottom: 1px solid black;
-}
-
+/*
 .navigation ul li:hover{
 	transform: translate(20px, 0px);
 	-webkit-transform: translate(20px, 0px);
+}
+*/
+
+.navigation ul{
+	width: 250px;
+	color: #2E2E2E;
+	cursor: pointer;
+} 
+
+.navigation ul li{
+	list-style: none;
+	margin: 5px 10px;
+}
+
+.navigation ul li:hover{
+	color: #F78181;
+}
+
+.navigation ul ul{
+	margin-left: 30px;
+}
+
+.navigation .sublist{
+	color: #848484;
 }
 
 .navigation .last{
