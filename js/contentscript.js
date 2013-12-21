@@ -169,7 +169,7 @@ var keyWordsAbout = keyWordsGet();
 
 function enableSelection(event){ 
 
-	var note_edit_form = document.getElementById("note-form");
+	var note_edit_form = document.getElementById("kwj-note-form");
 	var father = event.target.parentNode;
 	while(father){
 		if(father == note_edit_form)
@@ -182,26 +182,26 @@ function enableSelection(event){
 		/*set form data*/
 		var block = "<div class='modal fade' id='kwj-note-form'"
 			+ "tabindex='-1' aria-hidden='true' role='dialog' aria-labelledby='myModalLabel'>"
-			+ "<div class='modal-dialog'><div class='modal-content'>"
+			+ "<div class='modal-dialog'><div class='modal-content' style='padding: 20px; text-align: left;'>"
 			+ "<div class='modal-header'>"
 			+ "<button type='button' class='close' data-dismiss='modal' aria-hidden='true'>&times;</button>"
-			+ "<h4 class='modal-title' id='myModalLabel'>Modal title</h4>"
+			+ "<h3 class='modal-title' id='myModalLabel' style='color:black;'>编辑摘抄<h3>"
 			+ "</div>"
 			+ "<div class='modal-body'>"
-			+ "<div id='note-form'><h1>摘 抄</h1>" 
-			+ "<div id='createtime'><span>摘抄时间：</span>" 
+			+ "<div id='note-form'>" 
+			+ "<div id='createtime' style='color:#BF00FF;'><span>摘抄时间：</span>" 
 			+ "<span id='note-form-date'></span></div>"
-			+ "<fieldset>"
-			+ "<legend>摘抄内容</legend>"
-			+ "<div id='note-form-content'></div>"
-			+ "</fieldset>" 
-			+ "<fieldset id='note-form-kw'>"
-			+ "<legend>关键字</legend>" 
+			+ "<div style='border-bottom: 2px solid #ddd;'>"
+			+ "<h4 style='color: #FA5858; line-height: 18px;'>摘抄内容</h4>"
+			+ "<div id='note-form-content' style='margin: 10px;'></div>"
+			+ "</div>" 
+			+ "<div id='note-form-kw' style='border-bottom: 2px solid #ddd;'>"
+			+ "<h4 style='color: #FA5858; line-height: 18px;'>关键字</h4>" 
 			+ "<label>输入<input type='text' id='nt-kw-in'/></label>"
 			+ "<button>添加</button>"
 			+ "<div id='note-chosen-kw'>已选择：</div>"
 			+ "<div id='note-can-kw'>已有： </div>"
-			+ "</fieldset>"
+			+ "</div>"
 			+ "<div id='note-button'>"
 			+ "<a id='note-item-confirm'>确认</a>"
 			+ "<a id='note-form-add'>继续添加</a>" 
@@ -235,9 +235,9 @@ function enableSelection(event){
 				var storedTexts = textCapture.getText();
 				for(var i = 0; i < storedTexts.length; i++){
 					$("#note-form-content").append(
-						"<div class='note-paragraph'><p>" 
+						"<div class='note-paragraph'><p style='margin: 0 5px;'>" 
 						+ storedTexts[i] 
-						+ "<div class='note-par-del fn-hide'>删除</div>"
+						+ "<div class='note-par-del fn-hide' style='font-size: 10px; color: red; margin: 3px;'>删除</div>"
 						+ "</p></div>"); 
 				}
 				var delBtn = document.getElementsByClassName("note-par-del");
@@ -265,11 +265,11 @@ function enableSelection(event){
 					if(keyWordsAbout.isDone()){
 						var allKeyWords = keyWordsAbout.getKeyWords();
 						for(var i = 0; i < allKeyWords.length; i++)
-							$("#note-can-kw").append("<span>"+allKeyWords[i]+"</span>");
+							$("#note-can-kw").append("<span style='margin: 5px; display: inline-block;'>"+allKeyWords[i]+"</span>");
 						$("#note-can-kw span").click(function(){
 							var newkw = $(this).text();
 							if(keyWordsAbout.addKeyWords(newkw)){
-								$("#note-chosen-kw").append("<span>" + newkw + "</span>"); 
+								$("#note-chosen-kw").append("<span style='margin: 5px; display: inline-block;'>" + newkw + "</span>"); 
 								$("#note-chosen-kw span").click(function(){
 									keyWordsAbout.deleteKW($(this).text());
 									this.parentNode.removeChild(this);
@@ -279,13 +279,13 @@ function enableSelection(event){
 						$("#nt-kw-in").keyup(function(event){
 							//alert(event.target.value);	
 							var similarw = keyWordsAbout.getSimilarKW(event.target.value);
-							$("#note-can-kw").empty();
+							$("#note-can-kw").empty().append("已有：");
 							for(var i in similarw){
-								$("#note-can-kw").append("<span>"+similarw[i]+"</span>");
+								$("#note-can-kw").append("<span style='margin: 5px; display: inline-block;'>"+similarw[i]+"</span>");
 								$("#note-can-kw span").click(function(){
 									var newkw = $(this).text();
 									if(keyWordsAbout.addKeyWords(newkw)){
-										$("#note-chosen-kw").append("<span>" + newkw + "</span>"); 
+										$("#note-chosen-kw").append("<span style='margin: 5px; display: inline-block;'>" + newkw + "</span>"); 
 										$("#note-chosen-kw span").click(function(){
 											keyWordsAbout.deleteKW($(this).text());
 											this.parentNode.removeChild(this);
@@ -300,9 +300,10 @@ function enableSelection(event){
 							var newkw = $("#nt-kw-in").val();
 							if(newkw){
 								if(keyWordsAbout.addKeyWords(newkw)){
-									$("#note-chosen-kw").append("<span>" + newkw + "</span>");
+									$("#note-chosen-kw").append("<span style='margin: 5px;'>" + newkw + "</span>");
 									$("#note-chosen-kw span").click(function(){
 										keyWordsAbout.deleteKW($(this).text());
+										this.parentNode.removeChild(this);
 									});
 								}
 							}
