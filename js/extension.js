@@ -16,7 +16,7 @@ function taskAssign(){
 		var msg = {};
 		msg.sender = 'extension';
 		msg.receiver = 'background';
-		msg.task = 'seeall';
+		msg.task = 'general';
 		chrome.runtime.sendMessage(msg,
 			function(){}
 		);

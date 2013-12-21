@@ -90,6 +90,17 @@ var dataBaseFunction = function(){
 		return result;
 	}
 
+	that.getAllNotes = function(func){ 
+		var os = that.db.transaction("notes").objectStore("notes");
+		os.openCursor().onsuccess = function(event){
+			var cursor = event.target.result;
+			if(cursor){
+				func(cursor.key, cursor.value);
+				cursor.continue();
+			}
+		};
+	};
+
 	that.getNetwork = function(func){ 
 		func(that.getKeyWords()); // sending keywords
 
@@ -168,23 +179,22 @@ var backgroundView = function(){
 	var that = {};
 
 	that.addItemToView = function(key, note){
-		var itemBlock = document.getElementsByClassName("item")[0];
-		var cloneBlock = itemBlock.cloneNode(true);
-		itemBlock.parentNode.appendChild(cloneBlock);
-		var ctBlock = cloneBlock.getElementsByClassName("createtime")[0];
-		ctBlock.innerHTML = note.createTime;//setting create time
-		var idBlock = cloneBlock.getElementsByClassName("id")[0];
-		idBlock.innerHTML = key; // setting id
-		var contentAllBlock = cloneBlock.getElementsByClassName("content-paras")[0];
-		//filling paragraphs from content
-		for(var i in note.content){
-			var contentBlock = document.createElement("div");
-			contentBlock.className = "view-content";
-			contentBlock.innerHTML = note.content[i];
-			contentAllBlock.appendChild(contentBlock);
-		}
-		var urlBlock = cloneBlock.getElementsByClassName("url")[0];
-		urlBlock.innerHTML = "来自:" + note.url; // setting source url
+		var itemBlockString = "<div class='item'><p class='time-id'>"
+								+ "<span class='createtime'>"
+								+ note.createTime 
+								+ "</span>"
+								+ "<span class='id fn-hide'>"
+								+ key
+								+ "</span>"
+								+ "</p>"
+								+ "<div class='content-paras'>"
+		for(var i = 0; i < note.content.length; i++)
+			itemBlockString += "<p>" + note.content[i] + "</p>";
+		itemBlockString += "</div><p class='url'>来自："
+							+ note.url
+							+ "</p>"
+							+ "</div>";
+		$("#main-content-view").append(itemBlockString);
 	};
 	
 	that.pictureNetwork = function(value){
@@ -294,7 +304,7 @@ var backgroundView = function(){
 			};
 
 	return that;
-}
+};
 
 window.onload = function(){
 
@@ -326,8 +336,8 @@ window.onload = function(){
 					}
 				}
 				if(request.sender == 'extension'){
-					if(request.task == 'seeall'){
-						chrome.tabs.create({url: window.location.href+"?option=seeall"});
+					if(request.task == 'general'){
+						chrome.tabs.create({url: window.location.href+"?option=general"});
 					}
 				}
 			}
@@ -341,7 +351,7 @@ window.onload = function(){
 		$("#"+"main-content"+mode).removeClass("fn-hide");	
 
 		switch(mode){
-			case "network":
+			case "general":
 				if(!db.db){
 					/*waiting for db to be ready.*/
 					var timedDB = setInterval(function(){
@@ -352,6 +362,20 @@ window.onload = function(){
 					}, 10);
 				}
 				else
+					db.getNetwork(bv.pictureNetwork);
+				break;
+			case "seeall":
+				if(!db.db){
+					/*waiting for db to be ready.*/
+					var timedDB = setInterval(function(){
+						if(db.db){
+							db.getAllNotes(bv.addItemToView);
+							clearInterval(timedDB);
+						}	
+					}, 10);
+				}
+				else
+					db.getAllNotes(bv.addItemToView);
 				break;
 		}
 	}
