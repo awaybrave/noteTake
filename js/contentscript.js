@@ -211,7 +211,7 @@ function enableSelection(event){
 			+ "<button type='button' class='btn btn-default' data-dismiss='modal'>Close</button>"
 			+ "<button type='button' class='btn btn-primary'>Save changes</button>"
 			+ "</div></div></div></div>";
-		//if($("#kwj-note-form").size() == 0)
+		if($("#kwj-note-form").size() == 0)
 			$("body").append(block);
 		$("#kwj-note-form").modal({"backdrop" : "static"});
 		/*end of setting form data*/
@@ -362,18 +362,21 @@ function enableSelection(event){
 		$("#kwj-note-form").on('hidden.bs.modal', function(e){
 			var i;
 			var paragraphs = document.getElementsByClassName("note-paragraph");
-			for(i = 0; i < paragraphs.length; i++)
-				paragraphs[i].parentNode.removeChild(paragraphs[i]); 
+			var pl = paragraphs.length;
+			for(i = 0; i < pl; i++)
+				paragraphs[0].parentNode.removeChild(paragraphs[0]); 
 
 			var keywords = document.getElementById("note-can-kw")
 									.getElementsByTagName("span");
-			for(i = 0; i < keywords.length; i++)
-				keywords[i].parentNode.removeChild(keywords[i]); 
+			var kl = keywords.length;
+			for(i = 0; i < kl; i++)
+				keywords[0].parentNode.removeChild(keywords[0]); 
 
 			var ckeywords = document.getElementById("note-chosen-kw")
 									.getElementsByTagName("span");
-			for(i = 0; i < ckeywords.length; i++)
-				ckeywords[i].parentNode.removeChild(ckeywords[i]); 
+			var cl = ckeywords.length;
+			for(i = 0; i < cl; i++)
+				ckeywords[0].parentNode.removeChild(ckeywords[0]); 
 		});
 
 	}
