@@ -115,6 +115,7 @@ var backgroundView = function(){
 	};
 	var _link;
 	var _node;
+	var index_link_node = {};
 	var color  = d3.scale.category20();
 
 	function showAjacentNodes(d, i){
@@ -134,6 +135,16 @@ var backgroundView = function(){
 					return 0.6; 
 			});
 		}
+		if(_node){
+			_node.style("stroke", function(d, j){
+				if(j == i)
+					return "#000000";
+				if(index_link_node[i + "," + j])
+					return "#000000";
+				else
+					return "#896d67";
+			})
+		}
 	}
 
 	function hideAjacentNodes(d, i){
@@ -147,6 +158,11 @@ var backgroundView = function(){
 				return 0.6; 
 			});
 		} 
+		if(_node){
+			_node.style("stroke", function(d, j){
+				return "#896d67";
+			})
+		}
 	}
 
 	var that = {};
@@ -176,7 +192,7 @@ var backgroundView = function(){
 			for(var i = 0; i < value.length; i++){
 				var newnode = {
 					"name": value[i],
-					"type": 0,
+					"type": 0, 
 					group: i+1 
 				};
 				_nwjson.nodes.push(newnode);
@@ -200,6 +216,7 @@ var backgroundView = function(){
 							"value": 1
 						};
 						_nwjson.links.push(newlink);
+						index_link_node[newlink.target + "," + newlink.source] = true;
 					}
 				}
 			}
