@@ -225,7 +225,7 @@ function enableSelection(event){
 		textCapture.dealInfo(newTextInfo);
 		/*end*/
 
-		var note_form_timer = setInterval(function(){
+		//var note_form_timer = setInterval(function(){
 			if($("#note-form").size() > 0){ 
 				/*diplay the createTime and all texts that 
 				  are already captured and stored.
@@ -356,9 +356,9 @@ function enableSelection(event){
 					gbclear(keyWordsAbout);
 				});
 
-				clearInterval(note_form_timer);
+		//		clearInterval(note_form_timer);
 			}
-		}, 100); 
+		//}, 100); 
 
 		$("#kwj-note-form").on('hidden.bs.modal', function(e){
 			var i;
@@ -378,6 +378,16 @@ function enableSelection(event){
 			var cl = ckeywords.length;
 			for(i = 0; i < cl; i++)
 				ckeywords[0].parentNode.removeChild(ckeywords[0]); 
+				
+			/*unbind event handler*/
+			$("#note-item-confirm").unbind("click");
+			$(".note-paragraph").unbind("mouseover").unbind("mouseout");
+			$(".note-par-del").unbind("click");
+			$("#note-can-kw span").unbind("click");
+			$("#note-chosen-kw span").unbind("click");
+			$("#note-form-kw button").unbind("click");
+			$("#note-item-cancel").unbind("click"); 
+			$("#note-form-add").unbind("click");
 		});
 
 	}
