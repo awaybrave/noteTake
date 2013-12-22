@@ -25,7 +25,7 @@ var dataBaseFunction = function(){
 	var that = {}; 
 
 	that.dbName = "note1";
-	that.dbVersion = 2;
+	that.dbVersion = 3;
 	that.allItems = [];
 
 	that.open = function(){
@@ -42,7 +42,7 @@ var dataBaseFunction = function(){
 		that.request.onupgradeneeded = function(event){
 			that.db = event.target.result;
 			//create note objectStore;
-			var obsNote = that.db.createObjectStore("notes", {keyPath: "notesId"});
+			var obsNote = that.db.createObjectStore("notes", {keyPath: "notesId", autoIncrement: true});
 			obsNote.createIndex("createTime", "createTime", {unique:true});	
 			obsNote.createIndex("url", "url");
 		};
