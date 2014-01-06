@@ -450,7 +450,7 @@ window.onload = function(){
 		});
 	}
 	else{
-
+		
 		var base_url = window.location.href;
 		base_url = base_url.substr(0, base_url.indexOf("?"));
 		var navigation_link = $(".navigation a");
@@ -460,7 +460,6 @@ window.onload = function(){
 				$(navigation_link[i]).attr("href", base_url+"?option="+option);
 		}
 
-		
 		var mode = regTest[1];
 		var modules = ["view"];
 		for(var i = 0; i < modules.length; i++)
@@ -472,7 +471,7 @@ window.onload = function(){
 				if(!db.db){
 					/*waiting for db to be ready.*/
 					var timedDB = setInterval(function(){
-						if(db.db){
+						if(db.db){ 
 							db.getMonthTotal(bv.pictureMonthTotal);
 							db.getNetwork(bv.pictureNetwork);
 							clearInterval(timedDB);
