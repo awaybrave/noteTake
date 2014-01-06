@@ -371,6 +371,16 @@ window.onload = function(){
 		});
 	}
 	else{
+
+		var base_url = window.location.href;
+		base_url = base_url.substr(0, base_url.indexOf("?"));
+		var navigation_link = $(".navigation a");
+		for(var i = 0; i < navigation_link.size(); i++){
+			var option = $(navigation_link[i]).attr("option");
+			if(option)
+				$(navigation_link[i]).attr("href", base_url+"?option="+option);
+		}
+
 		var mode = regTest[1];
 		var modules = ["view"];
 		for(var i = 0; i < modules.length; i++)
