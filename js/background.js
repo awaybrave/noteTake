@@ -143,6 +143,20 @@ var dataBaseFunction = function(){
 		};
 	};
 
+	that.getMonthTotal = function(func){
+		var monthTotal = [];
+		var os = that.db.transaction("monthTotal").objectStore("monthTotal");
+		os.openCursor().onsuccess = function(event){
+			var cursor = event.target.result;
+			if(cursor){
+				monthTotal.push({"month": cursor.key, "total": cursor.value.value});
+				cursor.continue();
+			}
+			else
+				func(monthTotal);
+		};
+	};
+
 	return that;
 };
 
@@ -224,6 +238,69 @@ var backgroundView = function(){
 		$("#main-content-view").append(itemBlockString);
 	};
 	
+	that.pictureMonthTotal = function(months){
+		
+		var list = [];
+		var max = 0;
+		for(var i = 0; i < months.length; i++){
+			list.push(months[i].month);
+			if(max < months[i].total)
+				max = months[i].total;
+		}
+
+		var margin = {top: 20, right: 30, bottom: 30, left: 40},
+			width = 600 - margin.left - margin.right,
+			height = 400 - margin.top - margin.bottom;
+
+		var x = d3.scale.ordinal()
+			.domain(list)
+			.rangeRoundBands([0, width], 0.1);
+
+		var y = d3.scale.linear()
+			.domain([0, max])
+			.range([height, 0]);
+
+		var xAxis = d3.svg.axis()
+			.scale(x)
+			.orient("bottom");
+
+		var yAxis = d3.svg.axis()
+			.scale(y)
+			.orient("left");
+			//.ticks(10, "%");
+
+		var chart = d3.select("#main-content-month").append("svg")
+			.attr("width", width + margin.left + margin.right)
+			.attr("height", height + margin.top + margin.bottom)
+			.append("g")
+			.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+		chart.append("g")
+			.attr("class", "x axis")
+			.attr("transform", "translate(0," + height + ")")
+			.call(xAxis);
+
+		chart.append("g")
+			.attr("class", "y axis")
+			.call(yAxis)
+			.append("text")
+			.attr("transform", "rotate(-90)")
+			.attr("y", 6)
+			.attr("dy", ".71em")
+			.style("text-anchor", "end")
+			.text("数量");
+
+		chart.selectAll(".bar")
+			.data(months)
+			.enter().append("rect")
+			.attr("class", "bar")
+			.attr("x", function(d){return x(d.month);})
+			.attr("y", function(d){return y(d.total);})
+			.attr("height", function(d){return height- y(d.total);})
+			.attr("width", x.rangeBand());
+		
+	};
+
 	that.pictureNetwork = function(value){
 		if(value.constructor == Array){ 
 			for(var i = 0; i < value.length; i++){
@@ -298,7 +375,9 @@ var backgroundView = function(){
 						break;
 					kw.push(_nwjson.nodes[i].name);
 				}
-				var index_svg = d3.select("#main-content-index").append("svg");
+				var index_svg = d3.select("#main-content-index").append("svg")
+								.attr("width", width)
+								.attr("height", height);
 				var kw_index = index_svg.selectAll(".index")
 										.data(kw)
 										.enter().append("rect")
@@ -381,6 +460,7 @@ window.onload = function(){
 				$(navigation_link[i]).attr("href", base_url+"?option="+option);
 		}
 
+		
 		var mode = regTest[1];
 		var modules = ["view"];
 		for(var i = 0; i < modules.length; i++)
@@ -393,13 +473,16 @@ window.onload = function(){
 					/*waiting for db to be ready.*/
 					var timedDB = setInterval(function(){
 						if(db.db){
+							db.getMonthTotal(bv.pictureMonthTotal);
 							db.getNetwork(bv.pictureNetwork);
 							clearInterval(timedDB);
 						}	
 					}, 10);
 				}
-				else
+				else{
+					db.getMonthTotal(bv.pictureMonthTotal);
 					db.getNetwork(bv.pictureNetwork);
+				}
 				break;
 			case "seeall":
 				if(!db.db){
