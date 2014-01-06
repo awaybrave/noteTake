@@ -25,7 +25,7 @@ var dataBaseFunction = function(){
 	var that = {}; 
 
 	that.dbName = "note1";
-	that.dbVersion = 3;
+	that.dbVersion = 4;
 	that.allItems = [];
 
 	that.open = function(){
@@ -45,13 +45,20 @@ var dataBaseFunction = function(){
 			var obsNote = that.db.createObjectStore("notes", {keyPath: "notesId", autoIncrement: true});
 			obsNote.createIndex("createTime", "createTime", {unique:true});	
 			obsNote.createIndex("url", "url");
+
+			var obsCreateTime = that.db.createObjectStore("monthTotal", {keyPath: "timeId"});
 		};
+
 		if(!localStorage.getItem("kwcount"))
 			localStorage.setItem("kwcount", 0);
 	}
 
 	that.addItem = function(item){ 
+		//Manipulate objectStore "notes" and "monthTotal".
 		var transaction = that.db.transaction("notes", "readwrite");
+		
+		//Storing the note information including 
+		//create time, url and corresponding key words.
 		var os = transaction.objectStore("notes");
 		/*set createTime and notesId*/
 		var time = new Date();
@@ -78,6 +85,26 @@ var dataBaseFunction = function(){
 		delete(item.canKW);
 		delete(item.newKW);
 		os.add(item);	
+		// end of storing note information.
+
+		// adding the value of objectStore "monthTotal"
+		transaction = that.db.transaction("monthTotal", "readwrite");
+		os = transaction.objectStore("monthTotal");
+		var currentMonth = time.getFullYear() + "/" + (time.getMonth()+1);
+		var request = os.get(currentMonth);
+		request.onerror = function(){
+			//alert("error");
+		};
+		request.onsuccess = function(){
+			if(request.result){
+				var data = request.result;
+				data.value = data.value+1;
+				os.put(data);
+			}
+			else
+				os.add({"timeId": currentMonth, "value": 0}); 
+		};
+		// end of adding.
 	};
 
 	
