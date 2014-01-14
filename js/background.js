@@ -117,12 +117,12 @@ var dataBaseFunction = function(){
 		return result;
 	}
 
-	that.getAllNotes = function(func){ 
+	that.getAllNotes = function(func, selector){ 
 		var os = that.db.transaction("notes").objectStore("notes");
 		os.openCursor().onsuccess = function(event){
 			var cursor = event.target.result;
 			if(cursor){
-				func(cursor.key, cursor.value);
+				func(selector, cursor.key, cursor.value);
 				cursor.continue();
 			}
 		};
@@ -219,7 +219,7 @@ var backgroundView = function(){
 
 	var that = {};
 
-	that.addItemToView = function(key, note){
+	that.addItemToView = function(selector, key, note){
 		var itemBlockString = "<div class='item'><p class='time-id'>"
 								+ "<span class='createtime'>"
 								+ note.createTime 
@@ -235,7 +235,7 @@ var backgroundView = function(){
 							+ note.url
 							+ "</p>"
 							+ "</div>";
-		$("#main-content-view").append(itemBlockString);
+		$(selector).append(itemBlockString);
 	};
 	
 	that.pictureMonthTotal = function(months){
@@ -269,7 +269,7 @@ var backgroundView = function(){
 			.orient("left");
 			//.ticks(10, "%");
 
-		var chart = d3.select("#main-content-month").append("svg")
+		var chart = d3.select("#sub-content-month").append("svg")
 			.attr("width", width + margin.left + margin.right)
 			.attr("height", height + margin.top + margin.bottom)
 			.append("g")
@@ -347,7 +347,7 @@ var backgroundView = function(){
 								.links(_nwjson.links)
 								.start();
 
-				var svg = d3.select("#main-content-network").append("svg")
+				var svg = d3.select("#sub-content-network").append("svg")
 							.attr("width", width)
 							.attr("height", height);
 				_link = svg.selectAll(".link")
@@ -375,7 +375,7 @@ var backgroundView = function(){
 						break;
 					kw.push(_nwjson.nodes[i].name);
 				}
-				var index_svg = d3.select("#main-content-index").append("svg")
+				var index_svg = d3.select("#sub-content-index").append("svg")
 								.attr("width", width)
 								.attr("height", height);
 				var kw_index = index_svg.selectAll(".index")
@@ -461,10 +461,10 @@ window.onload = function(){
 		}
 
 		var mode = regTest[1];
-		var modules = ["view"];
+		var modules = ["general", "searchwords", "seeall"];
 		for(var i = 0; i < modules.length; i++)
-			$("#"+"main-content"+modules[i]).addClass("fn-hide");
-		$("#"+"main-content"+mode).removeClass("fn-hide");	
+			$("#"+"main-content-"+modules[i]).addClass("fn-hide");
+		$("#"+"main-content-"+mode).removeClass("fn-hide");	
 
 		switch(mode){
 			case "general":
@@ -488,13 +488,15 @@ window.onload = function(){
 					/*waiting for db to be ready.*/
 					var timedDB = setInterval(function(){
 						if(db.db){
-							db.getAllNotes(bv.addItemToView);
+							db.getAllNotes(bv.addItemToView, "#main-content-seeall");
 							clearInterval(timedDB);
 						}	
 					}, 10);
 				}
 				else
-					db.getAllNotes(bv.addItemToView);
+					db.getAllNotes(bv.addItemToView, "#main-content-seeall");
+				break;
+			case "searchwords":
 				break;
 		}
 	}
