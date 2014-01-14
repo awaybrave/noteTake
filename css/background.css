@@ -74,3 +74,6 @@ body{
 .x .axis path{
 	display: none;
 }
+.keywords-chosen{
+	background: #ddd;
+}

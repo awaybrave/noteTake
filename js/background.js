@@ -27,6 +27,7 @@ var dataBaseFunction = function(){
 	that.dbName = "note1";
 	that.dbVersion = 4;
 	that.allItems = [];
+	that.kwToNotesDone = false;
 
 	that.open = function(){
 		that.request = indexedDB.open(that.dbName, that.dbVersion);
@@ -155,6 +156,28 @@ var dataBaseFunction = function(){
 			else
 				func(monthTotal);
 		};
+	};
+
+	that.getNotesAndKeywords = function(){
+		that.kwToNodes = [];
+		var os = that.db.transaction("notes").objectStore("notes");
+		os.openCursor().onsuccess = function(event){
+			var cursor = event.target.result;
+			if(cursor){
+				for(var i = 0; i < cursor.value.kw.length; i++){
+					if(kwToNodes[cursor.value.kw[i]] == undefined)
+						that.kwToNodes[cursor.value.kw[i]] = [];
+					that.kwToNodes[cursor.value.kw[i]].push(cursor.key);
+				}
+				cursor.continue();
+			}
+			else
+				that.kwToNotesDone = true;
+		}; 
+	};
+
+	that.getKeywordsSearchResult = function(func, chosen, selector){
+		var swId = [];
 	};
 
 	return that;
@@ -409,6 +432,20 @@ var backgroundView = function(){
 				}
 			};
 
+	that.listKeywords = function(selector, keywords){
+		var kw_index = [];
+		for(var i = 0; i < keywords.length; i++)
+			kw_index.push({"index": i, "word": keywords[i]});
+		function sortkw(kw1, kw2){
+			return kw1.word < kw2.word;
+		}
+		kw_index.sort(sortkw);
+		for(var i = 0; i < kw_index.length; i++)
+			$(selector).append("<span class='ki'><span class='keywords'>" + kw_index[i].word 
+								+ "</span>" + "<span class='kwindex fn-hide'>" 
+								+ kw_index[i].index + "</span></span>"); 
+	}
+
 	return that;
 };
 
@@ -466,11 +503,12 @@ window.onload = function(){
 			$("#"+"main-content-"+modules[i]).addClass("fn-hide");
 		$("#"+"main-content-"+mode).removeClass("fn-hide");	
 
+		var timeDB;
 		switch(mode){
 			case "general":
 				if(!db.db){
 					/*waiting for db to be ready.*/
-					var timedDB = setInterval(function(){
+					timedDB = setInterval(function(){
 						if(db.db){ 
 							db.getMonthTotal(bv.pictureMonthTotal);
 							db.getNetwork(bv.pictureNetwork);
@@ -486,7 +524,7 @@ window.onload = function(){
 			case "seeall":
 				if(!db.db){
 					/*waiting for db to be ready.*/
-					var timedDB = setInterval(function(){
+					timedDB = setInterval(function(){
 						if(db.db){
 							db.getAllNotes(bv.addItemToView, "#main-content-seeall");
 							clearInterval(timedDB);
@@ -497,6 +535,41 @@ window.onload = function(){
 					db.getAllNotes(bv.addItemToView, "#main-content-seeall");
 				break;
 			case "searchwords":
+				timedDB = setInterval(function(){
+					if(db.db){
+						var keywords = db.getKeyWords();
+						bv.listKeywords("#sub-content-words", keywords); 
+						$("#sub-content-words").append("<button id='fn-searchwords'>Search</button>");
+
+						db.getNotesAndKeywords();
+
+						$(".keywords").click(function(){
+							//select keywords
+							if($(this).hasClass("keywords-chosen")) 
+								$(this).removeClass("keywords-chosen");
+							else
+								$(this).addClass("keywords-chosen");
+						});
+					
+						$("#fn-searchwords").click(function(){
+							var chosen = [];	
+							var index;
+							var chosenItem = $(".keywords-chosen");	
+							for(var i = 0; i < chosenItem.length; i++){
+								index = parseInt($(chosenItem[i]).parent()
+												.children(".kwindex")[0].innerHTML);
+								chosen.push(index);
+							}
+							var timedkn = setInterval(function(){
+								if(db.kwToNotesDone){
+									clearInterval(timedkn);
+								}
+							}, 10);
+						});
+
+						clearInterval(timedDB);
+					}
+				}, 10);
 				break;
 		}
 	}
