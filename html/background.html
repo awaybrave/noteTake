@@ -6,36 +6,43 @@
 		<link rel="stylesheet" href="../css/lib/reset.css">
 		<link rel="stylesheet" href="../css/lib//bootstrap.min.css"> 
 		<link rel="stylesheet" href="../css/background.css"> 
-		<script src="../js/lib/d3.v3.min.js"></script>
 		<script src="../js/lib/jquery.js"></script>
+		<script src="../js/lib/d3.v3.min.js"></script>
 		<script src="../js/background.js"></script>
 	</head>
 	<body>
 		<div class="main-content fn-right">
 
-			<!--The month total information bar-chart-->
-			<div id="main-content-month">
-
-			</div>
-			<!--End of bar-chart-->
-
-			<!--The note-keyword network -->
-			<div id="network-wrapper">
-				<div id="main-content-network" class=""> 
+			<!--The general information-->
+			<div id="main-content-general">
+				<!--The month total information bar-chart-->
+				<div id="sub-content-month"> 
 				</div>
-				<div id="main-content-index"></div>
+				<!--End of bar-chart-->
+
+				<!--The note-keyword network -->
+				<div id="network-wrapper">
+					<div id="sub-content-network" class=""> 
+					</div>
+					<div id="sub-content-index"></div>
+				</div>
+				<!--End of network-->
 			</div>
-			<!--End of network-->
+			<!--End of general information-->
+			
+			<!--Search Part: Keywords Searching-->
+			<div id="main-content-searchwords">
+				<div id="sub-content-words">
+				</div>
+				<div id="sub-content-wresult">
+				</div>
+			</div>
+			<!--End of Keywords Searching-->
 
 			<!--The overall of notes-->
-			<div id="main-content-view">
+			<div id="main-content-seeall">
 			</div>
 			<!--end of overall--> 
-
-			<!--The statistical information-->
-			<div id="main-content-statics" class="fn-hide">
-			</div>
-			<!--End of statistic-->
 
 		</div>
 		<div class="navigation fn-left">
