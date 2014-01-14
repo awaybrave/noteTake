@@ -28,6 +28,11 @@ var dataBaseFunction = function(){
 	that.dbVersion = 4;
 	that.allItems = [];
 	that.kwToNotesDone = false;
+	var kwToNodes = [];
+
+	function isFoundInKeyword(list, id){
+
+	};
 
 	that.open = function(){
 		that.request = indexedDB.open(that.dbName, that.dbVersion);
@@ -159,15 +164,15 @@ var dataBaseFunction = function(){
 	};
 
 	that.getNotesAndKeywords = function(){
-		that.kwToNodes = [];
+		kwToNodes = [];
 		var os = that.db.transaction("notes").objectStore("notes");
 		os.openCursor().onsuccess = function(event){
 			var cursor = event.target.result;
 			if(cursor){
 				for(var i = 0; i < cursor.value.kw.length; i++){
 					if(kwToNodes[cursor.value.kw[i]] == undefined)
-						that.kwToNodes[cursor.value.kw[i]] = [];
-					that.kwToNodes[cursor.value.kw[i]].push(cursor.key);
+						kwToNodes[cursor.value.kw[i]] = [];
+					kwToNodes[cursor.value.kw[i]].push(cursor.key);
 				}
 				cursor.continue();
 			}
@@ -177,7 +182,20 @@ var dataBaseFunction = function(){
 	};
 
 	that.getKeywordsSearchResult = function(func, chosen, selector){
-		var swId = [];
+		var i, j;
+		var flag = true;
+		if(chosen){
+			for(i = 0; i < kwToNotes[chosen[0]].length; i++){
+				for(j = 1; j < chosen.length; j++){
+					if(!isFoundInKeyword(kwToNotes[chosen[j]], kwToNotes[chosen[0]][i])){
+						flag = false;
+						break;
+					}
+				}
+				if(flag)
+					func(selector, chosen[0][i].notesId, chosen[0][i]);		
+			}
+		}
 	};
 
 	return that;
