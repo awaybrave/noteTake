@@ -28,10 +28,21 @@ var dataBaseFunction = function(){
 	that.dbVersion = 4;
 	that.allItems = [];
 	that.kwToNotesDone = false;
-	var kwToNodes = [];
+	var kwToNotes = [];
 
 	function isFoundInKeyword(list, id){
-
+		var head = 0, tail = list.length-1;
+		var mid;
+		while(head < tail){
+			mid = parseInt((head+tail)/2);
+			if(target <= list[mid])
+				tail = mid;
+			else
+				head = mid + 1;
+		}
+		if(head == tail) return list[head] == target ? true : false;
+		else
+			return false; 
 	};
 
 	that.open = function(){
@@ -164,15 +175,15 @@ var dataBaseFunction = function(){
 	};
 
 	that.getNotesAndKeywords = function(){
-		kwToNodes = [];
+		kwToNotes = [];
 		var os = that.db.transaction("notes").objectStore("notes");
 		os.openCursor().onsuccess = function(event){
 			var cursor = event.target.result;
 			if(cursor){
 				for(var i = 0; i < cursor.value.kw.length; i++){
-					if(kwToNodes[cursor.value.kw[i]] == undefined)
-						kwToNodes[cursor.value.kw[i]] = [];
-					kwToNodes[cursor.value.kw[i]].push(cursor.key);
+					if(kwToNotes[cursor.value.kw[i]] == undefined)
+						kwToNotes[cursor.value.kw[i]] = [];
+					kwToNotes[cursor.value.kw[i]].push(cursor.key);
 				}
 				cursor.continue();
 			}
@@ -183,17 +194,26 @@ var dataBaseFunction = function(){
 
 	that.getKeywordsSearchResult = function(func, chosen, selector){
 		var i, j;
-		var flag = true;
+		var flag;
+		var request;
+		var os = that.db.transaction("notes").objectStore("notes");
 		if(chosen){
 			for(i = 0; i < kwToNotes[chosen[0]].length; i++){
+				flag = true;
 				for(j = 1; j < chosen.length; j++){
 					if(!isFoundInKeyword(kwToNotes[chosen[j]], kwToNotes[chosen[0]][i])){
 						flag = false;
 						break;
 					}
 				}
-				if(flag)
-					func(selector, chosen[0][i].notesId, chosen[0][i]);		
+				if(flag){
+					//func(selector, chosen[0][i].notesId, chosen[0][i]);		
+					request = os.get(kwToNotes[chosen[0]][i])
+								.onsuccess = function(event){
+									func(selector, event.target.result.notesId, 
+											event.target.result);
+								};
+				}
 			}
 		}
 	};
@@ -464,6 +484,10 @@ var backgroundView = function(){
 								+ kw_index[i].index + "</span></span>"); 
 	}
 
+	that.clearView = function(selector){
+		$(selector).empty();
+	};
+
 	return that;
 };
 
@@ -570,6 +594,7 @@ window.onload = function(){
 						});
 					
 						$("#fn-searchwords").click(function(){
+							bv.clearView("#sub-content-wresult");
 							var chosen = [];	
 							var index;
 							var chosenItem = $(".keywords-chosen");	
@@ -580,6 +605,7 @@ window.onload = function(){
 							}
 							var timedkn = setInterval(function(){
 								if(db.kwToNotesDone){
+									db.getKeywordsSearchResult(bv.addItemToView, chosen, "#sub-content-wresult");
 									clearInterval(timedkn);
 								}
 							}, 10);
