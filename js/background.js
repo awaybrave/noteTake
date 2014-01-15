@@ -594,6 +594,7 @@ window.onload = function(){
 					
 						$("#fn-searchwords").click(function(){
 							bv.clearView("#sub-content-wresult");
+							$("#sub-content-cwords").append("关键词 ");
 							var chosen = [];	
 							var index;
 							var chosenItem = $(".keywords-chosen");	
@@ -601,7 +602,10 @@ window.onload = function(){
 								index = parseInt($(chosenItem[i]).parent()
 												.children(".kwindex")[0].innerHTML);
 								chosen.push(index);
+								$(chosenItem[i]).removeClass("keywords-chosen");
+								$("#sub-content-cwords").append("<span>" + $(chosenItem[i]).text() + "</span>");
 							}
+							$("#sub-content-cwords").append("的搜索结果是：");
 							var timedkn = setInterval(function(){
 								if(db.kwToNotesDone){
 									db.getKeywordsSearchResult(bv.addItemToView, chosen, "#sub-content-wresult");
