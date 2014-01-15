@@ -30,7 +30,7 @@ var dataBaseFunction = function(){
 	that.kwToNotesDone = false;
 	var kwToNotes = [];
 
-	function isFoundInKeyword(list, id){
+	function isFoundInKeyword(list, target){
 		var head = 0, tail = list.length-1;
 		var mid;
 		while(head < tail){
@@ -207,12 +207,11 @@ var dataBaseFunction = function(){
 					}
 				}
 				if(flag){
-					//func(selector, chosen[0][i].notesId, chosen[0][i]);		
 					request = os.get(kwToNotes[chosen[0]][i])
-								.onsuccess = function(event){
-									func(selector, event.target.result.notesId, 
+								  .onsuccess = function(event){
+									  func(selector, event.target.result.notesId, 
 											event.target.result);
-								};
+									};
 				}
 			}
 		}
