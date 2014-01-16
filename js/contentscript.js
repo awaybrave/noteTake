@@ -4,18 +4,6 @@ function gbclear(){
 	}
 };
 
-function getTime(){
-	var result = "";
-	var time = new Date();
-	result += time.getFullYear()+"/";
-	result += (time.getMonth()+1)+"/";
-	result += time.getDate()+"/";
-	result += time.getHours()+"/";
-	result += time.getMinutes()+"/"
-	result += time.getSeconds();
-	return result;
-}
-
 function currentNoteStorage(){
 	var that = {};
 	var info = {};
@@ -24,8 +12,6 @@ function currentNoteStorage(){
 	that.dealInfo = function(obj){
 		if(obj.text)
 			info.texts.push(obj.text); 
-		if(!info.createTime && obj.createTime)
-			info.createTime = obj.createTime;
 		if(obj.url)
 			info.url = obj.url;
 	};
@@ -46,17 +32,12 @@ function currentNoteStorage(){
 		return info.texts;
 	};
 
-	that.getTime = function(){
-		return info.createTime;
-	};
-
 	that.getUrl = function(){
 		return info.url;
 	};
 
 	that.clear = function(){
 		info.texts = [];	
-		info.createTime = undefined;
 	};
 
 	return that;
@@ -220,18 +201,11 @@ function enableSelection(event){
 		var newTextInfo = {};
 		newTextInfo.text = text;
 		newTextInfo.url = window.location.href;
-		if(textCapture.getTime() == undefined)
-			newTextInfo.createTime = getTime();
 		textCapture.dealInfo(newTextInfo);
 		/*end*/
 
 		//var note_form_timer = setInterval(function(){
 			if($("#note-form").size() > 0){ 
-				/*diplay the createTime and all texts that 
-				  are already captured and stored.
-				*/
-
-				$("#note-form-date").text(textCapture.getTime());
 				var storedTexts = textCapture.getText();
 				for(var i = 0; i < storedTexts.length; i++){
 					$("#note-form-content").append(
@@ -324,7 +298,6 @@ function enableSelection(event){
 					note_msg.task = "addContent";
 					note_msg.note = {};
 					note_msg.note.content = textCapture.getText();
-					note_msg.note.createTime = textCapture.getTime();
 					note_msg.note.url = textCapture.getUrl();
 					note_msg.note.canKW = keyWordsAbout.getCanKeyWords();
 					note_msg.note.newKW = keyWordsAbout.getNewKeyWords();
