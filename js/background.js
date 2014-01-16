@@ -1,23 +1,52 @@
-var getId = function(time){
-	var result = "";
-	//var time = new Date();
-	result += time.getFullYear();
-	if(time.getMonth() < 9)
-		result += '0';
-	result += time.getMonth()+1; 
-	if(time.getDate() < 9)
-		result += '0';
-	result += time.getDate();
-	if(time.getHours() < 9)
-		result += '0';
-	result += time.getHours();
-	if(time.getMinutes() < 9)
-		result += '0';
-	result += time.getMinutes();
-	if(time.getSeconds() < 9)
-		result += '0';
-	result += time.getSeconds();
-	return result;
+var helper = {
+	"getId": function(time){
+		var result = "";
+		//var time = new Date();
+		result += time.getFullYear();
+		if(time.getMonth() < 9)
+			result += '0';
+		result += time.getMonth()+1; 
+		if(time.getDate() <= 9)
+			result += '0';
+		result += time.getDate();
+		if(time.getHours() <= 9)
+			result += '0';
+		result += time.getHours();
+		if(time.getMinutes() <= 9)
+			result += '0';
+		result += time.getMinutes();
+		if(time.getSeconds() <= 9)
+			result += '0';
+		result += time.getSeconds();
+		return result;
+	},
+
+	"getTime": function(){
+		var result = "";
+		var time = new Date();
+		result += time.getFullYear();
+		result += '/';
+		if(time.getMonth() < 9)
+			result += '0';
+		result += time.getMonth()+1; 
+		result += '/';
+		if(time.getDate() < 9)
+			result += '0';
+		result += time.getDate();
+		result += '/';
+		if(time.getHours() < 9)
+			result += '0';
+		result += time.getHours();
+		result += '/';
+		if(time.getMinutes() < 9)
+			result += '0';
+		result += time.getMinutes();
+		result += '/';
+		if(time.getSeconds() < 9)
+			result += '0';
+		result += time.getSeconds();
+		return result; 
+	}
 };
 
 /*this module deals with indexDB*/
@@ -79,7 +108,8 @@ var dataBaseFunction = function(){
 		var os = transaction.objectStore("notes");
 		/*set createTime and notesId*/
 		var time = new Date();
-		item.notesId = getId(time);
+		item.notesId = helper.getId(time);
+		item.createTime = helper.getTime();
 		//deal with the key words;
 		item.kw = [];
 		var i, j;
@@ -119,7 +149,7 @@ var dataBaseFunction = function(){
 				os.put(data);
 			}
 			else
-				os.add({"timeId": currentMonth, "value": 0}); 
+				os.add({"timeId": currentMonth, "value": 1}); 
 		};
 		// end of adding.
 	};
@@ -139,7 +169,7 @@ var dataBaseFunction = function(){
 		os.openCursor().onsuccess = function(event){
 			var cursor = event.target.result;
 			if(cursor){
-				func(selector, cursor.key, cursor.value);
+				func(selector, cursor.value);
 				cursor.continue();
 			}
 		};
@@ -208,13 +238,24 @@ var dataBaseFunction = function(){
 				}
 				if(flag){
 					request = os.get(kwToNotes[chosen[0]][i])
-								  .onsuccess = function(event){
-									  func(selector, event.target.result.notesId, 
-											event.target.result);
-									};
+							  .onsuccess = function(event){
+								  func(selector, event.target.result);
+					};
 				}
 			}
 		}
+	};
+
+	that.getTimeSearchResult = function(func, start, end, selector){ 
+		var os = that.db.transaction("notes").objectStore("notes");
+		var boundKeyRange = IDBKeyRange.bound(start, end);
+		os.openCursor(boundKeyRange).onsuccess = function(event){
+			var cursor = event.target.result;
+			if(cursor){
+				func(selector, event.target.result.value);
+				cursor.continue();
+			}
+		};
 	};
 
 	return that;
@@ -279,13 +320,13 @@ var backgroundView = function(){
 
 	var that = {};
 
-	that.addItemToView = function(selector, key, note){
+	that.addItemToView = function(selector, note){
 		var itemBlockString = "<div class='item'><p class='time-id'>"
 								+ "<span class='createtime'>"
 								+ note.createTime 
 								+ "</span>"
 								+ "<span class='id fn-hide'>"
-								+ key
+								+ note.notesId 
 								+ "</span>"
 								+ "</p>"
 								+ "<div class='content-paras'>"
@@ -539,7 +580,7 @@ window.onload = function(){
 		}
 
 		var mode = regTest[1];
-		var modules = ["general", "searchwords", "seeall"];
+		var modules = ["general", "searchtime", "searchwords", "seeall"];
 		for(var i = 0; i < modules.length; i++)
 			$("#"+"main-content-"+modules[i]).addClass("fn-hide");
 		$("#"+"main-content-"+mode).removeClass("fn-hide");	
@@ -562,6 +603,7 @@ window.onload = function(){
 					db.getNetwork(bv.pictureNetwork);
 				}
 				break;
+
 			case "seeall":
 				if(!db.db){
 					/*waiting for db to be ready.*/
@@ -575,6 +617,7 @@ window.onload = function(){
 				else
 					db.getAllNotes(bv.addItemToView, "#main-content-seeall");
 				break;
+
 			case "searchwords":
 				timedDB = setInterval(function(){
 					if(db.db){
@@ -617,6 +660,64 @@ window.onload = function(){
 						clearInterval(timedDB);
 					}
 				}, 10);
+				break;
+
+			case "searchtime":
+				$("#searchtime-input").click(function(){
+					$("#precise-time").removeClass("fn-hide");
+					$("#searchtime-options").addClass("fn-hide");
+					$("#searchtime-back").removeClass("fn-hide");
+				});
+				$("#searchtime-back").click(function(){
+					$("#precise-time").addClass("fn-hide");
+					$("#searchtime-options").removeClass("fn-hide");
+					$("#searchtime-back").addClass("fn-hide");
+				});
+				$("#searchtime-enter").click(function(){
+					var start, end, temp;
+					bv.clearView("#sub-content-result");
+					if($("#searchtime-options").hasClass("fn-hide")){ 
+						var period = $("#precise-time").find("input");
+						start = period[0].value + "000000"; 
+						end = period[1].value + "235959";
+					}
+					else{
+						var options = $("#searchtime-options").find("input");
+						var i;
+						var current = new Date();
+
+						//current = new Date(current.setHours(0)); // to test hour 0
+						
+						for(i = 0; i < options.length; i++){
+							if(options[i].checked){
+								switch (options[i].value){
+									case "24":
+										temp = current.getHours();
+										end = helper.getId(current);
+										start = helper.getId(new Date(current.setHours(temp-1)));
+										break;
+									case "1":
+										temp = current.getDate();
+										end = helper.getId(current);
+										start = helper.getId(new Date(current.setDate(temp-1)));
+										break;
+									case "7":
+										temp = current.getDate();
+										end = helper.getId(current);
+										start = helper.getId(new Date(current.setDate(temp-7)));
+										break;
+									case "30":
+										temp = current.getMonth();
+										end = helper.getId(current);
+										start = helper.getId(new Date(current.setMonth(temp-1)));
+										break;
+								}
+								break;
+							}
+						}
+					}
+					db.getTimeSearchResult(bv.addItemToView, start, end, "#sub-content-result");
+				});
 				break;
 		}
 	}

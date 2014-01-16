@@ -29,6 +29,37 @@
 				<!--End of network-->
 			</div>
 			<!--End of general information-->
+
+			<div id="main-content-searchtime">
+				<p>输入查询时间</p>
+				<div id="searchtime-options">
+					<label>
+						<input type="radio" name="time" value="24"/>一个小时内
+					</label>
+					<label>
+						<input type="radio" name="time" value="1"/>今天内
+					</label>
+					<label>
+						<input type="radio" name="time" value="7"/>一周内
+					</label>
+					<label>
+						<input type="radio" name="time" value="30"/>一个月内
+					</label>
+				</div>
+				<div>
+					<a id="searchtime-input">输入时间：</a>
+					<a id="searchtime-back" class="fn-hide">Back</a>
+					<div id="precise-time" class="fn-hide">
+						<label><input type="text" name="start"/>开始时间</label>
+						<label><input type="text" name="end"/>结束时间</label>
+					</div>
+				</div>
+				<div>
+					<button id="searchtime-enter">Search!</button>
+					<div id="sub-content-result">
+					</div>
+				</div>
+			</div>
 			
 			<!--Search Part: Keywords Searching-->
 			<div id="main-content-searchwords">
@@ -52,19 +83,19 @@
 			<ul>
 				<li>
 					<div>
-						<a option='general'>统计</a>
+						<a target='_blank' option='general'>统计</a>
 					</div>
 				</li>
 				<li>
 					<div>搜索摘抄</div>
 					<ul class='sublist'>
-						<li><a>按时间搜索</a></li>
-						<li><a option='searchwords'>按关键字搜索</a></li>
+						<li><a target='_blank' option='searchtime'>按时间搜索</a></li>
+						<li><a target='_blank' option='searchwords'>按关键字搜索</a></li>
 						<li><a>按内容搜索</a></li>
 					</ul>
 				</li>
-				<li><div><a option='seeall'>查看全部</a></div></li>
-				<li><div><a href="https://github.com/awaybrave/noteTake">联系作者</a></div></li>
+				<li><div><a target='_blank' option='seeall'>查看全部</a></div></li>
+				<li><div><a target='_blank' href="https://github.com/awaybrave/noteTake">联系作者</a></div></li>
 			</ul>
 		</div>
 	</body>
