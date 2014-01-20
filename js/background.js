@@ -1,7 +1,6 @@
 var helper = {
 	"getId": function(time){
 		var result = "";
-		//var time = new Date();
 		result += time.getFullYear();
 		if(time.getMonth() < 9)
 			result += '0';
@@ -58,6 +57,7 @@ var dataBaseFunction = function(){
 	that.allItems = [];
 	that.kwToNotesDone = false;
 	var kwToNotes = [];
+	var last = null;
 
 	function isFoundInKeyword(list, target){
 		var head = 0, tail = list.length-1;
@@ -166,10 +166,18 @@ var dataBaseFunction = function(){
 
 	that.getAllNotes = function(func, selector){ 
 		var os = that.db.transaction("notes").objectStore("notes");
-		os.openCursor().onsuccess = function(event){
+		var count = 0;
+		var currentBound;
+		if(!last) 
+			currentBound = IDBKeyRange.upperBound(helper.getId(new Date())); 
+		else
+			currentBound = IDBKeyRange.upperBound(last.notesId, true);
+		os.openCursor(currentBound, "prev").onsuccess = function(event){
 			var cursor = event.target.result;
-			if(cursor){
+			if(cursor && count < 10){
 				func(selector, cursor.value);
+				last = cursor.value;
+				count++;
 				cursor.continue();
 			}
 		};
@@ -397,7 +405,7 @@ var backgroundView = function(){
 			.attr("class", "bar")
 			.attr("x", function(d){return x(d.month);})
 			.attr("y", function(d){return y(d.total);})
-			.attr("height", function(d){return height- y(d.total);})
+			.attr("height", function(d){return height - y(d.total);})
 			.attr("width", x.rangeBand());
 		
 	};
@@ -609,13 +617,16 @@ window.onload = function(){
 					/*waiting for db to be ready.*/
 					timedDB = setInterval(function(){
 						if(db.db){
-							db.getAllNotes(bv.addItemToView, "#main-content-seeall");
+							db.getAllNotes(bv.addItemToView, "#sub-content-items");
 							clearInterval(timedDB);
 						}	
 					}, 10);
 				}
 				else
-					db.getAllNotes(bv.addItemToView, "#main-content-seeall");
+					db.getAllNotes(bv.addItemToView, "#sub-content-items");
+				$("#sub-content-continue").click(function(){
+					db.getAllNotes(bv.addItemToView, "#sub-content-items");	
+				});
 				break;
 
 			case "searchwords":
@@ -628,6 +639,7 @@ window.onload = function(){
 						db.getNotesAndKeywords();
 
 						$(".keywords").click(function(){
+							bv.clearView("#sub-content-wresult");
 							//select keywords
 							if($(this).hasClass("keywords-chosen")) 
 								$(this).removeClass("keywords-chosen");
@@ -672,6 +684,17 @@ window.onload = function(){
 					$("#precise-time").addClass("fn-hide");
 					$("#searchtime-options").removeClass("fn-hide");
 					$("#searchtime-back").addClass("fn-hide");
+				});
+				var cal_time = new Date();
+				$("#start-month").text(cal_time.getFullYear() + "/"
+										+ (cal_time.getMonth() + 1));
+				$("#end-month").text(cal_time.getFullYear() + "/"
+										+ (cal_time.getMonth() + 1));
+				$("#start-input").focus(function(){
+					$("#start-calendar").removeClass("fn-hide");
+				});
+				$("#end-input").focus(function(){ 
+					$("#end-calendar").removeClass("fn-hide");
 				});
 				$("#searchtime-enter").click(function(){
 					var start, end, temp;
