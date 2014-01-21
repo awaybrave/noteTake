@@ -54,7 +54,24 @@ var helper = {
 	},
 
 	"fillCalendar": function(selector, date){
-
+		$(selector + " caption span").text(date.getFullYear() + "/"
+								+ (date.getMonth() + 1));
+		var grids = $(selector + " tbody tr td");
+		var first = new Date(date);
+		first.setDate(1);
+		var start = first.getDay();
+		var months = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+		var month_day = months[first.getMonth()];
+		var year, i;
+		if(first.getMonth() == 1){
+			year = first.getFullYear();	
+			if(year % 400 == 0 || year / 4 == 0)	
+				month_day++;
+		}
+		for(i = 0; i < month_day; i++){
+			$(grids[start+i]).empty(); 
+			$(grids[start+i]).append(i+1);
+		}
 	}
 };
 
@@ -717,17 +734,64 @@ window.onload = function(){
 						$(c1).addClass("fn-hide");
 					}
 				});
-				//setting calendar
+				
+				//filling with and setting event of calendar
 				var cal_time = new Date();
-				$("#start-month").text(cal_time.getFullYear() + "/"
-										+ (cal_time.getMonth() + 1));
-				$("#end-month").text(cal_time.getFullYear() + "/"
-										+ (cal_time.getMonth() + 1));
-				for(var i = 0; i < 6; i++){
+				var start_time = new Date(cal_time);
+				var end_time = new Date(cal_time);
+				var i;
+				for(i = 0; i < 6; i++){
 					$("#start-calendar tbody").append("<tr>");
 					$("#end-calendar tbody").append("<tr>");
 				}
+				for(i = 0; i < 7; i++){ 
+					$("#start-calendar tbody tr").append("<td>");
+					$("#end-calendar tbody tr").append("<td>");
+				}
+				helper.fillCalendar("#start-calendar", cal_time);
+				helper.fillCalendar("#end-calendar", cal_time);
+				$("#start-pre-y").click(function(){
+					helper.fillCalendar("#start-calendar", 
+						new Date(start_time.setFullYear(start_time.getFullYear()-1))
+					); 
+				});
+				$("#start-next-y").click(function(){
+					helper.fillCalendar("#start-calendar", 
+						new Date(start_time.setFullYear(start_time.getFullYear()+1))
+					); 
+				});
+				$("#start-pre-m").click(function(){
+					helper.fillCalendar("#start-calendar", 
+						new Date(start_time.setMonth(start_time.getMonth()-1))
+					); 
+				});
+				$("#start-next-m").click(function(){
+					helper.fillCalendar("#start-calendar", 
+						new Date(start_time.setMonth(start_time.getMonth()+1))
+					); 
+				});
+				$("#end-pre-y").click(function(){
+					helper.fillCalendar("#end-calendar", 
+						new Date(end_time.setFullYear(end_time.getFullYear()-1))
+					); 
+				});
+				$("#end-next-y").click(function(){
+					helper.fillCalendar("#end-calendar", 
+						new Date(end_time.setFullYear(end_time.getFullYear()+1))
+					); 
+				});
+				$("#end-pre-m").click(function(){
+					helper.fillCalendar("#end-calendar", 
+						new Date(end_time.setMonth(end_time.getMonth()-1))
+					); 
+				});
+				$("#end-next-m").click(function(){
+					helper.fillCalendar("#end-calendar", 
+						new Date(end_time.setMonth(end_time.getMonth()+1))
+					); 
+				});
 				//end of setting calendar
+
 				$("#searchtime-enter").click(function(){
 					var start, end, temp;
 					bv.clearView("#sub-content-result");
@@ -754,7 +818,7 @@ window.onload = function(){
 									case "1":
 										temp = current.getDate();
 										end = helper.getId(current);
-										start = helper.getId(new Date(current.setDate(temp-1)));
+										start = helper.getId(new Date(current.setHours(0)));
 										break;
 									case "7":
 										temp = current.getDate();
