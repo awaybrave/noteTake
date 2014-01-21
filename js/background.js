@@ -45,6 +45,16 @@ var helper = {
 			result += '0';
 		result += time.getSeconds();
 		return result; 
+	},
+
+	"isSubNode": function(parentNode, node){
+		while(node && node.parentNode != parentNode)
+			node = node.parentNode;
+		return node ? true : false;
+	},
+
+	"fillCalendar": function(selector, date){
+
 	}
 };
 
@@ -685,17 +695,39 @@ window.onload = function(){
 					$("#searchtime-options").removeClass("fn-hide");
 					$("#searchtime-back").addClass("fn-hide");
 				});
+				$("body").click(function(event){
+					var ct = event.target;
+					var input1 = document.getElementById("start-input");
+					var input2 = document.getElementById("end-input");
+					var c1 = document.getElementById("start-calendar");
+					var c2 = document.getElementById("end-calendar");
+					if(ct != input1 && ct != input2
+						&& !helper.isSubNode(c1, ct) 
+						&& !helper.isSubNode(c2, ct)
+					){
+						$(c1).addClass("fn-hide");
+						$(c2).addClass("fn-hide"); 
+					}
+					if(ct == input1){
+						$(c1).removeClass("fn-hide");
+						$(c2).addClass("fn-hide");
+					}
+					if(ct == input2){
+						$(c2).removeClass("fn-hide");
+						$(c1).addClass("fn-hide");
+					}
+				});
+				//setting calendar
 				var cal_time = new Date();
 				$("#start-month").text(cal_time.getFullYear() + "/"
 										+ (cal_time.getMonth() + 1));
 				$("#end-month").text(cal_time.getFullYear() + "/"
 										+ (cal_time.getMonth() + 1));
-				$("#start-input").focus(function(){
-					$("#start-calendar").removeClass("fn-hide");
-				});
-				$("#end-input").focus(function(){ 
-					$("#end-calendar").removeClass("fn-hide");
-				});
+				for(var i = 0; i < 6; i++){
+					$("#start-calendar tbody").append("<tr>");
+					$("#end-calendar tbody").append("<tr>");
+				}
+				//end of setting calendar
 				$("#searchtime-enter").click(function(){
 					var start, end, temp;
 					bv.clearView("#sub-content-result");
