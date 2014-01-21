@@ -54,8 +54,6 @@ var helper = {
 	},
 
 	"fillCalendar": function(selector, date){
-		$(selector + " caption span").text(date.getFullYear() + "/"
-								+ (date.getMonth() + 1));
 		var grids = $(selector + " tbody tr td");
 		var first = new Date(date);
 		first.setDate(1);
@@ -68,6 +66,12 @@ var helper = {
 			if(year % 400 == 0 || year / 4 == 0)	
 				month_day++;
 		}
+		if(first.getMonth() < 9)
+			$(selector + " caption span").text(date.getFullYear() 
+					+ "/" + "0" + (date.getMonth() + 1));
+		else
+			$(selector + " caption span").text(date.getFullYear() 
+					+ "/" + (date.getMonth() + 1));
 		for(i = 0; i < month_day; i++){
 			$(grids[start+i]).empty(); 
 			$(grids[start+i]).append(i+1);
@@ -790,6 +794,20 @@ window.onload = function(){
 						new Date(end_time.setMonth(end_time.getMonth()+1))
 					); 
 				});
+				$("#start-calendar td").click(function(event){
+					var temp = $(this).text();
+					if(temp.length == 1)
+						temp = "0" + temp;
+					var start_date = $("#start-month").text() + "/" + temp;
+					$("#start-input").val(start_date);
+				});
+				$("#end-calendar td").click(function(event){
+					var temp = $(this).text();
+					if(temp.length == 1)
+						temp = "0" + temp;
+					var end_date = $("#end-month").text() + "/" + temp;
+					$("#end-input").val(end_date);
+				});
 				//end of setting calendar
 
 				$("#searchtime-enter").click(function(){
@@ -797,8 +815,8 @@ window.onload = function(){
 					bv.clearView("#sub-content-result");
 					if($("#searchtime-options").hasClass("fn-hide")){ 
 						var period = $("#precise-time").find("input");
-						start = period[0].value + "000000"; 
-						end = period[1].value + "235959";
+						start = (period[0].value).replace(/\//g, "") + "000000"; 
+						end = (period[1].value).replace(/\//g, "") + "235959"; 
 					}
 					else{
 						var options = $("#searchtime-options").find("input");
