@@ -4,154 +4,162 @@
 		<title>hello</title>
 		<link rel="stylesheet" href="../css/lib/functions.css">
 		<link rel="stylesheet" href="../css/lib/reset.css">
-		<link rel="stylesheet" href="../css/lib//bootstrap.min.css"> 
-		<link rel="stylesheet" href="../css/background.css"> 
+		<!--<link rel="stylesheet" href="../css/lib/bootstrap.min.css">-->
+		<!--<link rel="stylesheet" href="../css/background.css">--> 
+		<link rel="stylesheet" href="../css/test.css">
 		<script src="../js/lib/jquery.js"></script>
 		<script src="../js/lib/d3.v3.min.js"></script>
 		<script src="../js/background.js"></script>
 	</head>
 	<body>
-		<div class="main-content fn-right">
-
-			<!--The general information-->
-			<div id="main-content-general">
-				<!--The month total information bar-chart-->
-				<div id="sub-content-month"> 
-				</div>
-				<!--End of bar-chart-->
-
-				<!--The note-keyword network -->
-				<div id="network-wrapper">
-					<div id="sub-content-network" class=""> 
-					</div>
-					<div id="sub-content-index"></div>
-				</div>
-				<!--End of network-->
+		<div class="header">Note Take 1.0</div>
+		<div class="contentContainer">
+			<div class="navigation">
+				<ul>
+					<li>
+						<div>
+							<a target='_blank' option='general'>统计</a>
+						</div>
+					</li>
+					<li class="subList">
+						<ul class=''>
+							<li class="subListTitle"><a>搜索摘抄</a></li>
+							<li><a target='_blank' option='searchtime'>按时间搜索</a></li>
+							<li><a target='_blank' option='searchwords'>按关键字搜索</a></li>
+							<li><a>按内容搜索</a></li>
+						</ul>
+					</li>
+					<li><div><a target='_blank' option='seeall'>查看全部</a></div></li>
+					<li><div><a target='_blank' href="https://github.com/awaybrave/noteTake">联系作者</a></div></li>
+				</ul>
 			</div>
-			<!--End of general information-->
+			<div class="main-content">
 
-			<div id="main-content-searchtime">
-				<p>输入查询时间</p>
-				<div id="searchtime-options">
-					<label>
-						<input type="radio" name="time" value="24"/>一个小时内
-					</label>
-					<label>
-						<input type="radio" name="time" value="1"/>今天内
-					</label>
-					<label>
-						<input type="radio" name="time" value="7"/>一周内
-					</label>
-					<label>
-						<input type="radio" name="time" value="30"/>一个月内
-					</label>
+				<!--The general information-->
+				<div id="main-content-general">
+					<!--The month total information bar-chart-->
+					<div id="sub-content-month"> 
+						<p class="general_title">每月创建笔记情况视图</p>
+					</div>
+					<!--End of bar-chart-->
+
+					<!--The note-keyword network -->
+					<div id="network-wrapper">
+						<p class="general_title">笔记与关键字关系视图</p>
+						<div id="sub-content-network" class=""> 
+						</div>
+						<div id="sub-content-index"></div>
+					</div>
+					<!--End of network-->
 				</div>
-				<div>
-					<a id="searchtime-input">输入时间：</a>
-					<a id="searchtime-back" class="fn-hide">Back</a>
-					<div id="precise-time" class="fn-hide">
-						<label><input type="text" id="start-input"/>开始时间</label>
-						<label><input type="text" id="end-input"/>结束时间</label>
-						<table class="calendar fn-hide" id="start-calendar">
-							<caption>
-								<a rel="pre" id="start-pre-y">前一年</a>
-								<a rel="pre" id="start-pre-m">前一月</a>
-								<span id="start-month"></span>
-								<a rel="next" id="start-next-m">后一月</a>
-								<a rel="next" id="start-next-y">后一年</a>
-							</caption>
-							<thead>
-								<tr>
-									<th scope="col">Sun</th>
-									<th scope="col">Mon</th>
-									<th scope="col">Tue</th>
-									<th scope="col">Wed</th>
-									<th scope="col">Thur</th>
-									<th scope="col">Fri</th>
-									<th scope="col">Sat</th>
-								</tr>
-							</thead>
-							<tbody>
-								<!--
-								<tr>
-									<td class="null"></td>
-									<td><a>1</a></td>
-								</tr>
-								-->
-							</tbody>
-						</table>
-						<table class="calendar fn-hide" id="end-calendar">
-							<caption>
-								<a rel="pre" id="end-pre-y">前一年</a>
-								<a rel="pre" id="end-pre-m">前一月</a>
-								<span id="end-month"></span>
-								<a rel="next" id="end-next-m">后一月</a>
-								<a rel="next" id="end-next-y">后一年</a>
-							</caption>
-							<thead>
-								<tr>
-									<th scope="col">Sun</th>
-									<th scope="col">Mon</th>
-									<th scope="col">Tue</th>
-									<th scope="col">Wed</th>
-									<th scope="col">Thur</th>
-									<th scope="col">Fri</th>
-									<th scope="col">Sat</th>
-								</tr>
-							</thead>
-							<tbody>
-							</tbody>
-						</table>
+				<!--End of general information-->
+
+				<div id="main-content-searchtime">
+					<p class='searchtime-method searchtime-method-select' id="searchtime-method-options"><a>输入选项</a></p>
+					<p class='searchtime-method' id="searchtime-method-precise"><a>输入时间</a></p>
+					<div class='searchtime-content'>
+						<div id="searchtime-options" class='searchtime-content-select'>
+							<label>
+								<input type="radio" name="time" value="24"/>一个小时内
+							</label>
+							<label>
+								<input type="radio" name="time" value="1"/>今天内
+							</label>
+							<label>
+								<input type="radio" name="time" value="7"/>一周内
+							</label>
+							<label>
+								<input type="radio" name="time" value="30"/>一个月内
+							</label>
+						</div>
+						<div id="searchtime-precise" class="searchtime-content-select fn-hide">
+							<div id="precise-time">
+								<label id="start-input"><input id="start-input-input" type="text"/>开始时间</label>
+								<label id="end-input"><input id="end-input-input" type="text"/>结束时间</label>
+								<table class="calendar fn-hide" id="start-calendar">
+									<caption>
+										<a rel="pre" id="start-pre-y">前一年</a>
+										<a rel="pre" id="start-pre-m">前一月</a>
+										<span id="start-month"></span>
+										<a rel="next" id="start-next-m">后一月</a>
+										<a rel="next" id="start-next-y">后一年</a>
+									</caption>
+									<thead>
+										<tr>
+											<th scope="col">Sun</th>
+											<th scope="col">Mon</th>
+											<th scope="col">Tue</th>
+											<th scope="col">Wed</th>
+											<th scope="col">Thur</th>
+											<th scope="col">Fri</th>
+											<th scope="col">Sat</th>
+										</tr>
+									</thead>
+									<tbody>
+										<!--
+										<tr>
+											<td class="null"></td>
+											<td><a>1</a></td>
+										</tr>
+										-->
+									</tbody>
+								</table>
+								<table class="calendar fn-hide" id="end-calendar">
+									<caption>
+										<a rel="pre" id="end-pre-y">前一年</a>
+										<a rel="pre" id="end-pre-m">前一月</a>
+										<span id="end-month"></span>
+										<a rel="next" id="end-next-m">后一月</a>
+										<a rel="next" id="end-next-y">后一年</a>
+									</caption>
+									<thead>
+										<tr>
+											<th scope="col">Sun</th>
+											<th scope="col">Mon</th>
+											<th scope="col">Tue</th>
+											<th scope="col">Wed</th>
+											<th scope="col">Thur</th>
+											<th scope="col">Fri</th>
+											<th scope="col">Sat</th>
+										</tr>
+									</thead>
+									<tbody>
+									</tbody>
+								</table>
+							</div>
+						</div>
+						<div>
+							<p id="searchtime-enter">Search!</p>
+							<div id="sub-content-result">
+							</div>
+						</div>
 					</div>
 				</div>
-				<div>
-					<button id="searchtime-enter">Search!</button>
-					<div id="sub-content-result">
+				
+				<!--Search Part: Keywords Searching-->
+				<div id="main-content-searchwords">
+					<p class="title">点击下面关键字（再次点击则反选），进行查询</p>
+					<div id="sub-content-words">
+					</div>
+					<div id="sub-content-cwords">
+					</div>
+					<div id="sub-content-wresult">
 					</div>
 				</div>
-			</div>
-			
-			<!--Search Part: Keywords Searching-->
-			<div id="main-content-searchwords">
-				<p>点击下面关键字（再次点击则反选），进行查询</p>
-				<div id="sub-content-words">
-				</div>
-				<div id="sub-content-cwords">
-				</div>
-				<div id="sub-content-wresult">
-				</div>
-			</div>
-			<!--End of Keywords Searching-->
+				<!--End of Keywords Searching-->
 
-			<!--The overall of notes-->
-			<div id="main-content-seeall">
-				<div id="sub-content-items">
-				</div>
-				<div id="sub-content-continue">
-					<a>查看更早的摘抄</a>
-				</div>
-			</div>
-			<!--end of overall--> 
-
-		</div>
-		<div class="navigation fn-left">
-			<ul>
-				<li>
-					<div>
-						<a target='_blank' option='general'>统计</a>
+				<!--The overall of notes-->
+				<div id="main-content-seeall">
+					<div id="sub-content-items">
 					</div>
-				</li>
-				<li>
-					<div>搜索摘抄</div>
-					<ul class='sublist'>
-						<li><a target='_blank' option='searchtime'>按时间搜索</a></li>
-						<li><a target='_blank' option='searchwords'>按关键字搜索</a></li>
-						<li><a>按内容搜索</a></li>
-					</ul>
-				</li>
-				<li><div><a target='_blank' option='seeall'>查看全部</a></div></li>
-				<li><div><a target='_blank' href="https://github.com/awaybrave/noteTake">联系作者</a></div></li>
-			</ul>
+					<div id="sub-content-continue">
+						<a>查看更早的摘抄</a>
+					</div>
+				</div>
+				<!--end of overall--> 
+
+			</div>
+			<div class="clear"></div>
 		</div>
 	</body>
 </html>

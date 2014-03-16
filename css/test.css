@@ -1,0 +1,292 @@
+.button {
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  -ms-border-radius: 5px;
+  -o-border-radius: 5px;
+  border-radius: 5px;
+  border: 1px solid #556b2f;
+  color: #fff;
+  background-color: #468847;
+  text-align: center;
+  line-height: 30px;
+  height: 30px;
+  width: 80px;
+  cursor: pointer;
+}
+.button:hover {
+  background-color: #228B22;
+}
+li {
+  list-style: none;
+}
+body {
+  font-size: 16px;
+  color: #222;
+}
+.header {
+  font-size: 28px;
+  color: #ffffff;
+  height: 50px;
+  line-height: 50px;
+  background-color: #222222;
+  border-color: #080808;
+  padding: 10px;
+}
+.contentContainer {
+  margin-top: 20px;
+  padding: 0 10px;
+}
+.navigation {
+  float: left;
+  width: 25%;
+  padding: 10px;
+  border: 1px solid #cccccc;
+  box-shadow: 2px 2px 3px #888888;
+}
+.navigation li {
+  height: 30px;
+}
+.navigation li a {
+  color: #2a6496;
+  text-decoration: none;
+}
+.navigation li a:hover {
+  color: #005580;
+}
+.navigation .subList {
+  height: 120px;
+  font-size: 80%;
+}
+.navigation .subList li {
+  padding-left: 10px;
+}
+.navigation .subList .subListTitle {
+  font-size: 16px;
+  padding-left: 0px;
+}
+.navigation .current-mode {
+  color: #b94a48;
+  font-weight: bold;
+  text-decoration: underline;
+}
+.main-content {
+  float: right;
+  width: 70%;
+}
+.main-content .item {
+  color: #333;
+  padding: 20px;
+  border-top: 1px solid #cccccc;
+}
+.main-content .item .time-id {
+  margin: 5px 0;
+  font-weight: bold;
+  cursor: pointer;
+}
+.main-content .item .time-id .createtime {
+  color: #468847;
+}
+.main-content .item .time-id .edit-text {
+  color: #b94a48;
+  position: relative;
+  left: 2em;
+}
+.main-content .item .content-paras {
+  padding-left: 5px;
+  border-left: 1px solid #cccccc;
+  margin: 10px 0;
+}
+.main-content .item .url a {
+  font-style: italic;
+  font-size: 14px;
+  color: #2f4f4f;
+  text-decoration: none;
+}
+.main-content #main-content-searchtime .searchtime-method {
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  -ms-border-radius: 5px;
+  -o-border-radius: 5px;
+  border-radius: 5px;
+  display: inline-block;
+  border: 1px solid #556b2f;
+  color: #fff;
+  line-height: 30px;
+  height: 30px;
+  width: 80px;
+  text-align: center;
+  background-color: #468847;
+  float: left;
+  cursor: pointer;
+}
+.main-content #main-content-searchtime .searchtime-method:hover {
+  background-color: #228B22;
+}
+.main-content #main-content-searchtime .searchtime-method-select {
+  text-decoration: underline;
+  font-style: italic;
+}
+.main-content #main-content-searchtime .searchtime-content {
+  clear: both;
+  height: 1000px;
+}
+.main-content #main-content-searchtime .searchtime-content #searchtime-enter {
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  -ms-border-radius: 5px;
+  -o-border-radius: 5px;
+  border-radius: 5px;
+  border: 1px solid #556b2f;
+  color: #fff;
+  background-color: #468847;
+  text-align: center;
+  line-height: 30px;
+  height: 30px;
+  width: 80px;
+  cursor: pointer;
+}
+.main-content #main-content-searchtime .searchtime-content #searchtime-enter:hover {
+  background-color: #228B22;
+}
+.main-content #main-content-searchtime .searchtime-content .searchtime-content-select {
+  border: 1px solid #cccccc;
+  box-shadow: 2px 2px 3px #dcdcdc;
+  padding: 30px;
+  margin-bottom: 10px;
+  height: 350px;
+}
+.main-content #main-content-searchtime .searchtime-content .searchtime-content-select #precise-time {
+  position: relative;
+}
+.main-content #main-content-searchtime .searchtime-content .searchtime-content-select #precise-time input {
+  width: 15em;
+}
+.main-content #main-content-searchtime .searchtime-content .searchtime-content-select #precise-time #start-input {
+  position: absolute;
+}
+.main-content #main-content-searchtime .searchtime-content .searchtime-content-select #precise-time #end-input {
+  position: absolute;
+  left: 300px;
+}
+.main-content #main-content-searchtime .searchtime-content .searchtime-content-select #precise-time #start-calendar {
+  position: absolute;
+  top: 50px;
+  height: 250px;
+  cursor: pointer;
+}
+.main-content #main-content-searchtime .searchtime-content .searchtime-content-select #precise-time #start-calendar td {
+  text-align: center;
+}
+.main-content #main-content-searchtime .searchtime-content .searchtime-content-select #precise-time #start-calendar td:hover {
+  background: #3a87ad;
+}
+.main-content #main-content-searchtime .searchtime-content .searchtime-content-select #precise-time #end-calendar {
+  position: absolute;
+  top: 50px;
+  left: 300px;
+  height: 250px;
+  cursor: pointer;
+}
+.main-content #main-content-searchtime .searchtime-content .searchtime-content-select #precise-time #end-calendar td {
+  text-align: center;
+}
+.main-content #main-content-searchtime .searchtime-content .searchtime-content-select #precise-time #end-calendar td:hover {
+  background: #3a87ad;
+}
+.main-content #main-content-searchwords .title {
+  color: #fff;
+  background: #468847;
+  border: 1px solid #cccccc;
+  padding: 10px;
+  margin: 10px 0;
+}
+.main-content #main-content-searchwords #sub-content-words {
+  padding: 10px;
+  border-left: 1px solid #cccccc;
+}
+.main-content #main-content-searchwords #sub-content-words .ki {
+  color: #999999;
+  cursor: pointer;
+  padding: 5px;
+  margin: 5px;
+}
+.main-content #main-content-searchwords #sub-content-words .ki:hover {
+  color: #563d7c;
+}
+.main-content #main-content-searchwords #sub-content-words .ki .keywords-chosen {
+  color: #563d7c;
+}
+.main-content #main-content-searchwords #sub-content-words #fn-searchwords {
+  margin-top: 20px;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  -ms-border-radius: 5px;
+  -o-border-radius: 5px;
+  border-radius: 5px;
+  border: 1px solid #556b2f;
+  color: #fff;
+  background-color: #468847;
+  text-align: center;
+  line-height: 30px;
+  height: 30px;
+  width: 80px;
+  cursor: pointer;
+}
+.main-content #main-content-searchwords #sub-content-words #fn-searchwords:hover {
+  background-color: #228B22;
+}
+.main-content #main-content-searchwords #sub-content-cwords {
+  color: #fff;
+  background: #468847;
+  border: 1px solid #cccccc;
+  padding: 10px;
+  margin: 10px 0;
+}
+.main-content #main-content-searchwords #sub-content-cwords .chosen {
+  font-weight: bold;
+  margin: 0 5px;
+}
+#main-content-general .general_title {
+  color: #468847;
+  font-size: 18px;
+  margin: 10px;
+}
+#main-content-general #sub-content-month {
+  padding: 10px;
+  border-bottom: 1px solid #cccccc;
+}
+#main-content-general #network-wrapper {
+  padding: 10px;
+  border-bottom: 1px solid #cccccc;
+}
+#main-content-general .node {
+  stroke: #fff;
+  stroke-width: 1.5px;
+}
+#main-content-general .link {
+  stroke: green;
+  stroke-opacity: 0.6;
+  stroke-width: 2px;
+}
+#main-content-general .index {
+  width: 20px;
+  height: 10px;
+}
+#main-content-general .bar {
+  fill: steelblue;
+}
+#main-content-general .axis text {
+  font: 10px sans-serif;
+}
+#main-content-general .axis path,
+#main-content-general .axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+#main-content-general .x .axis path {
+  display: none;
+}
+.clear {
+  clear: both;
+}

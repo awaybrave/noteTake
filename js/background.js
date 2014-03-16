@@ -361,9 +361,10 @@ var backgroundView = function(){
 
 	that.addItemToView = function(selector, note){
 		var itemBlockString = "<div class='item'><p class='time-id'>"
-								+ "<span class='createtime'>"
+								+ "<span class='createtime'>创建时间： "
 								+ note.createTime 
 								+ "</span>"
+								+ "<span class='edit-text'>编辑</span>" 
 								+ "<span class='id fn-hide'>"
 								+ note.notesId 
 								+ "</span>"
@@ -372,8 +373,11 @@ var backgroundView = function(){
 		for(var i = 0; i < note.content.length; i++)
 			itemBlockString += "<p>" + note.content[i] + "</p>";
 		itemBlockString += "</div><p class='url'>来自："
+							+ "<a href="
 							+ note.url
-							+ "</p>"
+							+ " target='_blank'>"
+							+ note.url
+							+ "</a></p>"
 							+ "</div>";
 		$(selector).append(itemBlockString);
 	};
@@ -616,6 +620,8 @@ window.onload = function(){
 			var option = $(navigation_link[i]).attr("option");
 			if(option)
 				$(navigation_link[i]).attr("href", base_url+"?option="+option);
+			if(option == regTest[1])
+				$(navigation_link[i]).addClass("current-mode");
 		}
 
 		var mode = regTest[1];
@@ -665,7 +671,7 @@ window.onload = function(){
 					if(db.db){
 						var keywords = db.getKeyWords();
 						bv.listKeywords("#sub-content-words", keywords); 
-						$("#sub-content-words").append("<button id='fn-searchwords'>Search</button>");
+						$("#sub-content-words").append("<p id='fn-searchwords'>Search</p>");
 
 						db.getNotesAndKeywords();
 
@@ -680,6 +686,7 @@ window.onload = function(){
 					
 						$("#fn-searchwords").click(function(){
 							bv.clearView("#sub-content-wresult");
+							$("#sub-content-cwords").empty();
 							$("#sub-content-cwords").append("关键词 ");
 							var chosen = [];	
 							var index;
@@ -689,7 +696,7 @@ window.onload = function(){
 												.children(".kwindex")[0].innerHTML);
 								chosen.push(index);
 								$(chosenItem[i]).removeClass("keywords-chosen");
-								$("#sub-content-cwords").append("<span>" + $(chosenItem[i]).text() + "</span>");
+								$("#sub-content-cwords").append("<span class='chosen'>" + $(chosenItem[i]).text() + "</span>");
 							}
 							$("#sub-content-cwords").append("的搜索结果是：");
 							var timedkn = setInterval(function(){
@@ -706,20 +713,23 @@ window.onload = function(){
 				break;
 
 			case "searchtime":
-				$("#searchtime-input").click(function(){
+				$("#searchtime-method-options").click(function(){
 					$("#precise-time").removeClass("fn-hide");
-					$("#searchtime-options").addClass("fn-hide");
-					$("#searchtime-back").removeClass("fn-hide");
-				});
-				$("#searchtime-back").click(function(){
-					$("#precise-time").addClass("fn-hide");
 					$("#searchtime-options").removeClass("fn-hide");
-					$("#searchtime-back").addClass("fn-hide");
+					$($(".searchtime-method")[1]).removeClass("searchtime-method-select");
+					$($(".searchtime-method")[0]).addClass("searchtime-method-select");
+					$("#searchtime-precise").addClass("fn-hide");
+				});
+				$("#searchtime-method-precise").click(function(){
+					$("#searchtime-options").addClass("fn-hide");
+					$("#searchtime-precise").removeClass("fn-hide");
+					$($(".searchtime-method")[0]).removeClass("searchtime-method-select");
+					$($(".searchtime-method")[1]).addClass("searchtime-method-select");
 				});
 				$("body").click(function(event){
 					var ct = event.target;
-					var input1 = document.getElementById("start-input");
-					var input2 = document.getElementById("end-input");
+					var input1 = document.getElementById("start-input-input");
+					var input2 = document.getElementById("end-input-input");
 					var c1 = document.getElementById("start-calendar");
 					var c2 = document.getElementById("end-calendar");
 					if(ct != input1 && ct != input2
@@ -799,14 +809,14 @@ window.onload = function(){
 					if(temp.length == 1)
 						temp = "0" + temp;
 					var start_date = $("#start-month").text() + "/" + temp;
-					$("#start-input").val(start_date);
+					$("#start-input-input").val(start_date);
 				});
 				$("#end-calendar td").click(function(event){
 					var temp = $(this).text();
 					if(temp.length == 1)
 						temp = "0" + temp;
 					var end_date = $("#end-month").text() + "/" + temp;
-					$("#end-input").val(end_date);
+					$("#end-input-input").val(end_date);
 				});
 				//end of setting calendar
 
