@@ -74,7 +74,7 @@ var helper = {
 					+ "/" + (date.getMonth() + 1));
 		for(i = 0; i < month_day; i++){
 			$(grids[start+i]).empty(); 
-			$(grids[start+i]).append(i+1);
+			$(grids[start+i]).append("<span class='date'>" + (i+1) + '</span>');
 		}
 	}
 };
@@ -294,6 +294,30 @@ var dataBaseFunction = function(){
 				func(selector, event.target.result.value);
 				cursor.continue();
 			}
+		};
+	};
+
+	that.getContentSearchResult = function(func, contentArray, selector){
+		var os = that.db.transaction("notes").objectStore("notes"); 
+		os.openCursor().onsuccess = function(event){
+			var cursor = event.target.result;
+			if(cursor){
+				var flag = true;
+				for(var i = 0; i < contentArray.length; i++){
+					var targetContent = cursor.value.content;
+					for(var j = 0; j < targetContent.length; j++){
+						if(targetContent[j].indexOf(contentArray[i]) == -1){
+							flag = false;
+							break;
+						}
+					}
+					if(!flag)
+						break;
+				}
+				if(flag)
+					func(selector, cursor.value);
+				cursor.continue();
+			} 
 		};
 	};
 
@@ -625,7 +649,7 @@ window.onload = function(){
 		}
 
 		var mode = regTest[1];
-		var modules = ["general", "searchtime", "searchwords", "seeall"];
+		var modules = ["general", "searchtime", "searchwords", "searchcontent", "seeall"];
 		for(var i = 0; i < modules.length; i++)
 			$("#"+"main-content-"+modules[i]).addClass("fn-hide");
 		$("#"+"main-content-"+mode).removeClass("fn-hide");	
@@ -747,6 +771,7 @@ window.onload = function(){
 						$(c2).removeClass("fn-hide");
 						$(c1).addClass("fn-hide");
 					}
+					//if(helper.isSubNode(c1, ct))
 				});
 				
 				//filling with and setting event of calendar
@@ -764,16 +789,6 @@ window.onload = function(){
 				}
 				helper.fillCalendar("#start-calendar", cal_time);
 				helper.fillCalendar("#end-calendar", cal_time);
-				$("#start-pre-y").click(function(){
-					helper.fillCalendar("#start-calendar", 
-						new Date(start_time.setFullYear(start_time.getFullYear()-1))
-					); 
-				});
-				$("#start-next-y").click(function(){
-					helper.fillCalendar("#start-calendar", 
-						new Date(start_time.setFullYear(start_time.getFullYear()+1))
-					); 
-				});
 				$("#start-pre-m").click(function(){
 					helper.fillCalendar("#start-calendar", 
 						new Date(start_time.setMonth(start_time.getMonth()-1))
@@ -782,16 +797,6 @@ window.onload = function(){
 				$("#start-next-m").click(function(){
 					helper.fillCalendar("#start-calendar", 
 						new Date(start_time.setMonth(start_time.getMonth()+1))
-					); 
-				});
-				$("#end-pre-y").click(function(){
-					helper.fillCalendar("#end-calendar", 
-						new Date(end_time.setFullYear(end_time.getFullYear()-1))
-					); 
-				});
-				$("#end-next-y").click(function(){
-					helper.fillCalendar("#end-calendar", 
-						new Date(end_time.setFullYear(end_time.getFullYear()+1))
 					); 
 				});
 				$("#end-pre-m").click(function(){
@@ -806,17 +811,23 @@ window.onload = function(){
 				});
 				$("#start-calendar td").click(function(event){
 					var temp = $(this).text();
-					if(temp.length == 1)
-						temp = "0" + temp;
-					var start_date = $("#start-month").text() + "/" + temp;
-					$("#start-input-input").val(start_date);
+					if(temp){
+						if(temp.length == 1)
+							temp = "0" + temp;
+						var start_date = $("#start-month").text() + "/" + temp;
+						$("#start-input-input").val(start_date);
+					}
+					$("#start-calendar").addClass("fn-hide");
 				});
 				$("#end-calendar td").click(function(event){
 					var temp = $(this).text();
-					if(temp.length == 1)
-						temp = "0" + temp;
-					var end_date = $("#end-month").text() + "/" + temp;
-					$("#end-input-input").val(end_date);
+					if(temp){
+						if(temp.length == 1)
+							temp = "0" + temp;
+						var end_date = $("#end-month").text() + "/" + temp;
+						$("#end-input-input").val(end_date);
+					}
+					$("#end-calendar").addClass("fn-hide");
 				});
 				//end of setting calendar
 
@@ -866,6 +877,21 @@ window.onload = function(){
 					db.getTimeSearchResult(bv.addItemToView, start, end, "#sub-content-result");
 				});
 				break;
+
+			case "searchcontent":
+				$("#search-content-enter").click(function(){
+					var content = $("#search-content-input").val();
+					if(!content){
+						alert("搜索内容不能为空！");
+					}
+					else{
+						debugger;
+						content.replace(/,|\.\?|;|'|"/g, " ");
+						var subcontent = content.split(" ");
+						db.getContentSearchResult(bv.addItemToView, subcontent,"#sub-content-cresult");
+					}
+				});
+				break;	
 		}
 	}
 }; 

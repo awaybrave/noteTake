@@ -153,7 +153,7 @@ body {
   box-shadow: 2px 2px 3px #dcdcdc;
   padding: 30px;
   margin-bottom: 10px;
-  height: 350px;
+  height: 200px;
 }
 .main-content #main-content-searchtime .searchtime-content .searchtime-content-select #precise-time {
   position: relative;
@@ -171,27 +171,37 @@ body {
 .main-content #main-content-searchtime .searchtime-content .searchtime-content-select #precise-time #start-calendar {
   position: absolute;
   top: 50px;
-  height: 250px;
   cursor: pointer;
 }
 .main-content #main-content-searchtime .searchtime-content .searchtime-content-select #precise-time #start-calendar td {
   text-align: center;
 }
-.main-content #main-content-searchtime .searchtime-content .searchtime-content-select #precise-time #start-calendar td:hover {
+.main-content #main-content-searchtime .searchtime-content .searchtime-content-select #precise-time #start-calendar td .date:hover {
   background: #3a87ad;
+}
+.main-content #main-content-searchtime .searchtime-content .searchtime-content-select #precise-time #start-calendar #start-pre-m {
+  float: left;
+}
+.main-content #main-content-searchtime .searchtime-content .searchtime-content-select #precise-time #start-calendar #start-next-m {
+  float: right;
 }
 .main-content #main-content-searchtime .searchtime-content .searchtime-content-select #precise-time #end-calendar {
   position: absolute;
   top: 50px;
   left: 300px;
-  height: 250px;
   cursor: pointer;
 }
 .main-content #main-content-searchtime .searchtime-content .searchtime-content-select #precise-time #end-calendar td {
   text-align: center;
 }
-.main-content #main-content-searchtime .searchtime-content .searchtime-content-select #precise-time #end-calendar td:hover {
+.main-content #main-content-searchtime .searchtime-content .searchtime-content-select #precise-time #end-calendar td .date:hover {
   background: #3a87ad;
+}
+.main-content #main-content-searchtime .searchtime-content .searchtime-content-select #precise-time #end-calendar #end-pre-m {
+  float: left;
+}
+.main-content #main-content-searchtime .searchtime-content .searchtime-content-select #precise-time #end-calendar #end-next-m {
+  float: right;
 }
 .main-content #main-content-searchwords .title {
   color: #fff;
@@ -245,6 +255,34 @@ body {
 .main-content #main-content-searchwords #sub-content-cwords .chosen {
   font-weight: bold;
   margin: 0 5px;
+}
+.main-content #main-content-searchcontent #sub-content-ctitle input {
+  height: 30px;
+  line-height: 30px;
+  width: 20em;
+}
+.main-content #main-content-searchcontent #sub-content-ctitle input:hover {
+  background: #f0e68c;
+}
+.main-content #main-content-searchcontent #sub-content-ctitle .cbutton {
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  -ms-border-radius: 5px;
+  -o-border-radius: 5px;
+  border-radius: 5px;
+  border: 1px solid #556b2f;
+  color: #fff;
+  background-color: #468847;
+  text-align: center;
+  line-height: 30px;
+  height: 30px;
+  width: 80px;
+  cursor: pointer;
+  padding: 5px 10px;
+  margin: 0 10px;
+}
+.main-content #main-content-searchcontent #sub-content-ctitle .cbutton:hover {
+  background-color: #228B22;
 }
 #main-content-general .general_title {
   color: #468847;

@@ -26,7 +26,7 @@
 							<li class="subListTitle"><a>搜索摘抄</a></li>
 							<li><a target='_blank' option='searchtime'>按时间搜索</a></li>
 							<li><a target='_blank' option='searchwords'>按关键字搜索</a></li>
-							<li><a>按内容搜索</a></li>
+							<li><a target='_blank' option='searchcontent'>按内容搜索</a></li>
 						</ul>
 					</li>
 					<li><div><a target='_blank' option='seeall'>查看全部</a></div></li>
@@ -78,11 +78,9 @@
 								<label id="end-input"><input id="end-input-input" type="text"/>结束时间</label>
 								<table class="calendar fn-hide" id="start-calendar">
 									<caption>
-										<a rel="pre" id="start-pre-y">前一年</a>
 										<a rel="pre" id="start-pre-m">前一月</a>
 										<span id="start-month"></span>
 										<a rel="next" id="start-next-m">后一月</a>
-										<a rel="next" id="start-next-y">后一年</a>
 									</caption>
 									<thead>
 										<tr>
@@ -106,11 +104,9 @@
 								</table>
 								<table class="calendar fn-hide" id="end-calendar">
 									<caption>
-										<a rel="pre" id="end-pre-y">前一年</a>
 										<a rel="pre" id="end-pre-m">前一月</a>
 										<span id="end-month"></span>
 										<a rel="next" id="end-next-m">后一月</a>
-										<a rel="next" id="end-next-y">后一年</a>
 									</caption>
 									<thead>
 										<tr>
@@ -147,6 +143,17 @@
 					</div>
 				</div>
 				<!--End of Keywords Searching-->
+
+				<!--Search Part: Content Searching-->
+				<div id="main-content-searchcontent">
+					<div id="sub-content-ctitle">
+						<input type='text' id="search-content-input" placeholder='输入要搜索的内容'</input>
+						<span class="cbutton" id="search-content-enter">搜索</span>
+					</div>
+					<div id="sub-content-cresult">
+					</div>
+				</div>
+				<!--End of Content Searching-->
 
 				<!--The overall of notes-->
 				<div id="main-content-seeall">

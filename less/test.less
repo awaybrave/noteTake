@@ -165,7 +165,7 @@ body{
 				box-shadow: 2px 2px 3px #dcdcdc;
 				padding: 30px;
 				margin-bottom: 10px;
-				height: 350px;
+				height: 200px;
 
 				#precise-time{
 					position: relative;
@@ -182,26 +182,36 @@ body{
 					#start-calendar{
 						position: absolute;
 						top: 50px; 
-						height: 250px;
 						cursor: pointer;
 						td{
 							text-align: center;	
-							&:hover{
+							.date:hover{
 								background: #3a87ad;
 							}
+						}
+						#start-pre-m{
+							float: left;
+						}
+						#start-next-m{
+							float: right;
 						}
 					}
 					#end-calendar{
 						position: absolute;
 						top: 50px;
 						left: 300px;
-						height: 250px;
 						cursor: pointer;
 						td{
 							text-align: center;	
-							&:hover{
+							.date:hover{
 								background: #3a87ad;
 							}
+						}
+						#end-pre-m{
+							float: left;
+						}
+						#end-next-m{
+							float: right;
 						}
 					}
 				}
@@ -245,6 +255,23 @@ body{
 			.chosen{
 				font-weight: bold;
 				margin: 0 5px;
+			}
+		}
+	}
+	#main-content-searchcontent{
+		#sub-content-ctitle{
+			input{
+				height: 30px;
+				line-height: 30px;
+				width: 20em;
+				&:hover{
+					background: #f0e68c;
+				}
+			}
+			.cbutton{
+				.button();
+				padding: 5px 10px;
+				margin: 0 10px;
 			}
 		}
 	}
