@@ -4,11 +4,13 @@
 		<title>hello</title>
 		<link rel="stylesheet" href="../css/lib/functions.css">
 		<link rel="stylesheet" href="../css/lib/reset.css">
+		<link rel="stylesheet" href="../css/lib/modal.css">
 		<!--<link rel="stylesheet" href="../css/lib/bootstrap.min.css">-->
 		<!--<link rel="stylesheet" href="../css/background.css">--> 
 		<link rel="stylesheet" href="../css/test.css">
 		<script src="../js/lib/jquery.js"></script>
 		<script src="../js/lib/d3.v3.min.js"></script>
+	 	<script src="../js/lib/bootstrap.min.js"></script>
 		<script src="../js/background.js"></script>
 	</head>
 	<body>
@@ -162,9 +164,32 @@
 					<div id="sub-content-continue">
 						<a>查看更早的摘抄</a>
 					</div>
+
 				</div>
 				<!--end of overall--> 
-
+				<div id="edit-note-form" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+					<div class="modal-dialog modal-lg">
+						<div class="modal-content">
+							<div class="modal-header">
+								<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+								<h2>编辑摘抄</h2>
+							</div>
+							<div class="modal-body">
+								<div id="note-kw-show"></div>
+								<div id="note-kw-add">
+									<input id="new-kw-input" type="text"></input>
+									<span>确定</span> 
+									<!--selection-->
+								</div>
+								<textarea id="note-content" col="50" row="10"></textarea>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+								<button type="button" class="btn btn-primary">Save changes</button>
+							</div>
+						</div>
+					</div>
+				</div> 
 			</div>
 			<div class="clear"></div>
 		</div>

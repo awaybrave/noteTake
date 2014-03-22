@@ -36,6 +36,9 @@ body {
   margin-top: 20px;
   padding: 0 10px;
 }
+.emph {
+  color: yellow;
+}
 .navigation {
   float: left;
   width: 25%;

@@ -76,6 +76,31 @@ var helper = {
 			$(grids[start+i]).empty(); 
 			$(grids[start+i]).append("<span class='date'>" + (i+1) + '</span>');
 		}
+	},
+	"fixMonthsInfo": function(monthInfo){
+		if(monthInfo.length > 12)
+			return monthInfo.slice(-12);
+		else{
+			var result = [];
+			var current = new Date();
+			var cursor = monthInfo.length-1;
+			for(var i = 0; i < 6 || cursor >= 0; i++){
+				var id = current.getFullYear() + "/" + (current.getMonth()+1);
+				if(cursor >= 0 && monthInfo[cursor].month == id){
+					result.push(monthInfo[cursor]);
+					cursor--; 
+				}
+				else{
+					result.push({
+						"month": id,
+						"total": 0
+					});
+				}
+				current.setMonth(current.getMonth()-1);
+			}
+		}
+		result.reverse();
+		return result;
 	}
 };
 
@@ -302,20 +327,21 @@ var dataBaseFunction = function(){
 		os.openCursor().onsuccess = function(event){
 			var cursor = event.target.result;
 			if(cursor){
-				var flag = true;
+				var flag = false;
 				for(var i = 0; i < contentArray.length; i++){
+					var regTest = new RegExp("(" + contentArray[i] + ")", "g");
 					var targetContent = cursor.value.content;
 					for(var j = 0; j < targetContent.length; j++){
-						if(targetContent[j].indexOf(contentArray[i]) == -1){
-							flag = false;
-							break;
+						if(regTest.test(targetContent[i])){
+							targetContent[i] = targetContent[i].replace(regTest, "<span class='emph'>" + "$1" + "</span>");
+							flag = true;
 						}
 					}
-					if(!flag)
-						break;
 				}
-				if(flag)
+				cursor.value = targetContent;
+				if(flag){
 					func(selector, cursor.value);
+				}
 				cursor.continue();
 			} 
 		};
@@ -388,10 +414,9 @@ var backgroundView = function(){
 								+ "<span class='createtime'>创建时间： "
 								+ note.createTime 
 								+ "</span>"
-								+ "<span class='edit-text'>编辑</span>" 
-								+ "<span class='id fn-hide'>"
-								+ note.notesId 
-								+ "</span>"
+								+ "<span class='edit-text' noteId="
+								+ note.notesId
+								+ ">编辑</span>" 
 								+ "</p>"
 								+ "<div class='content-paras'>"
 		for(var i = 0; i < note.content.length; i++)
@@ -407,9 +432,9 @@ var backgroundView = function(){
 	};
 	
 	that.pictureMonthTotal = function(months){
-		
 		var list = [];
 		var max = 0;
+		months = helper.fixMonthsInfo(months);
 		for(var i = 0; i < months.length; i++){
 			list.push(months[i].month);
 			if(max < months[i].total)
@@ -465,8 +490,7 @@ var backgroundView = function(){
 			.attr("x", function(d){return x(d.month);})
 			.attr("y", function(d){return y(d.total);})
 			.attr("height", function(d){return height - y(d.total);})
-			.attr("width", x.rangeBand());
-		
+			.attr("width", x.rangeBand()); 
 	};
 
 	that.pictureNetwork = function(value){
@@ -598,6 +622,27 @@ var backgroundView = function(){
 	return that;
 };
 
+var EventManager = function(){
+	var that = {};
+	
+	//Use event bubble to bind event for
+	//future elements.
+	that.bindEditNote = function(container){
+		$(container).click(function(e){
+			if(e.target.className == "edit-text"){
+				var pars = $(e.target).parent().parent().children(".content-paras").children("p");
+				var subContent = [];
+				for(var i = 0; i < pars.length; i++)
+					subContent.push(pars.text());
+				$("#note-content").val(subContent.join("\n"));
+				$("#edit-note-form").modal({"backdrop" : "static"});
+			}
+		});
+	};
+
+	return that;
+};
+
 window.onload = function(){
 
 	/*delete the database
@@ -607,6 +652,7 @@ window.onload = function(){
 	var db = dataBaseFunction();
 	db.open();
 	var bv = backgroundView(); 
+	var em = EventManager();
 
 	/*determine working mode*/
 	var url = window.location.href;
@@ -654,7 +700,7 @@ window.onload = function(){
 			$("#"+"main-content-"+modules[i]).addClass("fn-hide");
 		$("#"+"main-content-"+mode).removeClass("fn-hide");	
 
-		var timeDB;
+		var timeDB; 
 		switch(mode){
 			case "general":
 				if(!db.db){
@@ -674,6 +720,7 @@ window.onload = function(){
 				break;
 
 			case "seeall":
+				em.bindEditNote("#sub-content-items");
 				if(!db.db){
 					/*waiting for db to be ready.*/
 					timedDB = setInterval(function(){
@@ -691,6 +738,7 @@ window.onload = function(){
 				break;
 
 			case "searchwords":
+				em.bindEditNote("#sub-content-wresult");
 				timedDB = setInterval(function(){
 					if(db.db){
 						var keywords = db.getKeyWords();
@@ -737,6 +785,7 @@ window.onload = function(){
 				break;
 
 			case "searchtime":
+				em.bindEditNote("#sub-content-result");
 				$("#searchtime-method-options").click(function(){
 					$("#precise-time").removeClass("fn-hide");
 					$("#searchtime-options").removeClass("fn-hide");
@@ -879,15 +928,16 @@ window.onload = function(){
 				break;
 
 			case "searchcontent":
+				em.bindEditNote("#sub-content-cresult");
 				$("#search-content-enter").click(function(){
 					var content = $("#search-content-input").val();
 					if(!content){
 						alert("搜索内容不能为空！");
 					}
 					else{
-						debugger;
 						content.replace(/,|\.\?|;|'|"/g, " ");
 						var subcontent = content.split(" ");
+						$("#sub-content-cresult").empty();
 						db.getContentSearchResult(bv.addItemToView, subcontent,"#sub-content-cresult");
 					}
 				});
