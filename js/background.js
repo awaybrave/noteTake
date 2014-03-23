@@ -238,7 +238,6 @@ var dataBaseFunction = function(){
 		var os = db.transaction("notes", "readwrite").objectStore("notes");
 		var request = os.get(noteId);
 		request.onsuccess = function(event){
-			debugger;
 			var result = request.result;
 			result.comment = noteContent["comment"];
 			var requestUpdate = os.put(result);
@@ -327,7 +326,7 @@ var dataBaseFunction = function(){
 		}; 
 	};
 
-	that.getKeywordsSearchResult = function(func, chosen, selector){
+	that.getKeywordsSearchResult = function(func, chosen, selector, template){
 		var i, j;
 		var flag;
 		var request;
@@ -344,7 +343,7 @@ var dataBaseFunction = function(){
 				if(flag){
 					request = os.get(kwToNotes[chosen[0]][i])
 							  .onsuccess = function(event){
-								  func(selector, event.target.result);
+								  func(selector, event.target.result, template);
 					};
 				}
 			}
@@ -645,7 +644,7 @@ var backgroundView = function(){
 				}
 			};
 
-	that.listKeywords = function(selector, keywords){
+	that.listKeywords = function(container, keywords, template){
 		var kw_index = [];
 		for(var i = 0; i < keywords.length; i++)
 			kw_index.push({"index": i, "word": keywords[i]});
@@ -653,11 +652,14 @@ var backgroundView = function(){
 			return kw1.word < kw2.word;
 		}
 		kw_index.sort(sortkw);
-		for(var i = 0; i < kw_index.length; i++)
-			$(selector).append("<span class='ki'><span class='keywords'>" + kw_index[i].word 
-								+ "</span>" + "<span class='kwindex fn-hide'>" 
-								+ kw_index[i].index + "</span></span>"); 
-	}
+		var result = TemplateEngine(template.keywords, kw_index);
+		$(container).append(result);
+	};
+
+	that.addChosenWords = function(container, chosen, template){
+		var title = TemplateEngine(template.title, chosen);
+		$(container).append(title);
+	};
 
 	that.openViewForm = function(data){
 		$(".note-content").empty();
@@ -712,7 +714,6 @@ var EventManager = function(){
 	}
 
 	function noteSaveHandler(e){
-		debugger;
 		var comment = [];
 		var commentBlocks = $(".each-comment");
 		for(var i = 0; i < commentBlocks.length; i++){ 
@@ -730,9 +731,7 @@ var EventManager = function(){
 				db.getNoteById(id, bv.openViewForm);
 				$(".add-com-btn").bind("click", addCommentHandler);
 				$("#note-save").bind("click", {"noteId": id}, noteSaveHandler);
-				debugger;
 				$(".del").bind("click", function(event){
-					debugger;
 					event.target.parentNode.removeChild(event.target);
 				});
 			}
@@ -810,7 +809,6 @@ db.ready(function(){
 
 			case "seeall":
 				var loadTemplate = TemplateLoader("../html/note.html", function(template){
-					debugger;
 					em.bindEditNote("#sub-content-items");
 					db.getAllNotes(bv.addItemToView, "#sub-content-items", template);
 					$("#sub-content-continue").click(function(){
@@ -820,44 +818,44 @@ db.ready(function(){
 				break;
 
 			case "searchwords":
-				em.bindEditNote("#sub-content-wresult");
-				var keywords = db.getKeyWords();
-				bv.listKeywords("#sub-content-words", keywords); 
-				$("#sub-content-words").append("<p id='fn-searchwords'>Search</p>");
+				var loadTemplate = TemplateLoader("../html/searchwords.html", function(template){
+					em.bindEditNote("#sub-content-wresult");
+					var keywords = db.getKeyWords();
+					bv.listKeywords("#sub-content-words", keywords, template); 
+					db.getNotesAndKeywords();
+					$(".keywords").click(function(){
+						bv.clearView("#sub-content-wresult");
+						//select keywords
+						if($(this).hasClass("keywords-chosen")) 
+							$(this).removeClass("keywords-chosen");
+						else
+							$(this).addClass("keywords-chosen");
+					});
+					$("#fn-searchwords").click(function(){
+						bv.clearView("#sub-content-wresult");
+						bv.clearView("#sub-content-cwords");
 
-				db.getNotesAndKeywords();
-
-				$(".keywords").click(function(){
-					bv.clearView("#sub-content-wresult");
-					//select keywords
-					if($(this).hasClass("keywords-chosen")) 
-						$(this).removeClass("keywords-chosen");
-					else
-						$(this).addClass("keywords-chosen");
-				});
-			
-				$("#fn-searchwords").click(function(){
-					bv.clearView("#sub-content-wresult");
-					$("#sub-content-cwords").empty();
-					$("#sub-content-cwords").append("关键词 ");
-					var chosen = [];	
-					var index;
-					var chosenItem = $(".keywords-chosen");	
-					for(var i = 0; i < chosenItem.length; i++){
-						index = parseInt($(chosenItem[i]).parent()
-										.children(".kwindex")[0].innerHTML);
-						chosen.push(index);
-						$(chosenItem[i]).removeClass("keywords-chosen");
-						$("#sub-content-cwords").append("<span class='chosen'>" + $(chosenItem[i]).text() + "</span>");
-					}
-					$("#sub-content-cwords").append("的搜索结果是：");
-					var timedkn = setInterval(function(){
-						if(db.kwToNotesDone){
-							db.getKeywordsSearchResult(bv.addItemToView, chosen, "#sub-content-wresult");
-							clearInterval(timedkn);
-						}
-					}, 10);
-				}); 
+						var chosen = [];	
+						var chosenContent = [];
+						var index;
+						var chosenItem = $(".keywords-chosen");	
+						for(var i = 0; i < chosenItem.length; i++){
+							index = parseInt($(chosenItem[i]).next().text(), 10);
+							chosen.push(index);
+							chosenContent.push(chosenItem[i].innerHTML);
+							$(chosenItem[i]).removeClass("keywords-chosen");
+						} 
+						bv.addChosenWords("#sub-content-cwords", chosenContent, template);
+						var timedkn = setInterval(function(){
+							if(db.kwToNotesDone){
+								db.getKeywordsSearchResult(bv.addItemToView, 
+									chosen, "#sub-content-wresult", template
+								);
+								clearInterval(timedkn);
+							}
+						}, 10);
+					}); 
+				})(); 
 				break;
 
 			case "searchtime":
