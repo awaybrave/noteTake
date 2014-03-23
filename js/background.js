@@ -110,6 +110,23 @@ var helper = {
 	}
 };
 
+/*this module deals with message listening*/
+var TemplateLoader = function(templatePath, func){
+	/*init*/
+	return function(){
+		//get Template
+		window.addEventListener("message", function(event){
+			var iframe = document.getElementById("templateIframe");
+			iframe.parentNode.removeChild(iframe);
+			func(event.data);
+		}); 
+		var iframe = document.createElement("iframe");
+		iframe.id = "templateIframe";
+		iframe.src = templatePath;
+		document.body.appendChild(iframe); 
+	};
+};
+
 /*this module deals with indexDB*/
 var dataBaseFunction = function(){
 	var that = {}; 
@@ -244,7 +261,7 @@ var dataBaseFunction = function(){
 		}
 	};
 
-	that.getAllNotes = function(func, selector){ 
+	that.getAllNotes = function(func, selector, template){ 
 		var os = db.transaction("notes").objectStore("notes");
 		var count = 0;
 		var currentBound;
@@ -255,7 +272,7 @@ var dataBaseFunction = function(){
 		os.openCursor(currentBound, "prev").onsuccess = function(event){
 			var cursor = event.target.result;
 			if(cursor && count < 10){
-				func(selector, cursor.value);
+				func(selector, cursor.value, template);
 				last = cursor.value;
 				count++;
 				cursor.continue();
@@ -383,6 +400,25 @@ var backgroundView = function(){
 	var _node;
 	var index_link_node = {};
 	var color  = d3.scale.category20();
+	
+	function TemplateEngine(html, options){
+		var re = /<%([^%>]+)?%>/g, 
+			reExp = /(^( )?(if|for|else|switch|case|break|{|}))(.*)?/g, 
+			code = 'var r=[];\n', 
+			cursor = 0;
+		var add = function(line, js) {
+			js? (code += line.match(reExp) ? line + '\n' : 'r.push(' + line + ');\n') :
+			(code += line != '' ? 'r.push("' + line.replace(/"/g, '\\"') + '");\n' : '');
+			return add;
+		};
+		while(match = re.exec(html)) {
+			add(html.slice(cursor, match.index))(match[1], true);
+			cursor = match.index + match[0].length;
+		}
+		add(html.substr(cursor, html.length - cursor));
+		code += 'return r.join("");';
+		return new Function(code.replace(/[\r\t\n]/g, '')).apply(options);
+	}
 
 	function showAjacentNodes(d, i){
 		if(d.type != 0)
@@ -433,30 +469,10 @@ var backgroundView = function(){
 
 	var that = {};
 
-	that.addItemToView = function(selector, note){
-		var itemBlockString = "<div class='item'><p class='time-id'>"
-								+ "<span class='createtime'>创建时间： "
-								+ note.createTime 
-								+ "</span>"
-								+ "<span class='view-text' noteId="
-								+ note.notesId
-								+ ">查看</span>" 
-								+ "</p>"
-								+ "<div class='content-paras'>"
-		for(var i = 0; i < note.content.length; i++){
-			if(note.content[i].length > 50)
-				itemBlockString += "<p>" + note.content[i].substr(0,50) + "……</p>";
-			else
-				itemBlockString += "<p>" + note.content[i] + "</p>";
-		}
-		itemBlockString += "</div><p class='url'>来自："
-							+ "<a href="
-							+ note.url
-							+ " target='_blank'>"
-							+ note.url
-							+ "</a></p>"
-							+ "</div>";
-		$(selector).append(itemBlockString);
+	that.addItemToView = function(selector, note, template){
+		debugger;
+		var result = TemplateEngine(template.note, note);
+		$(selector).append(result);
 	};
 	
 	that.pictureMonthTotal = function(months){
@@ -785,7 +801,6 @@ db.ready(function(){
 			$("#"+"main-content-"+modules[i]).addClass("fn-hide");
 		$("#"+"main-content-"+mode).removeClass("fn-hide");	
 
-		var timeDB; 
 		switch(mode){
 			case "general":
 				db.getMonthTotal(bv.pictureMonthTotal);
@@ -794,11 +809,14 @@ db.ready(function(){
 				break;
 
 			case "seeall":
-				em.bindEditNote("#sub-content-items");
-				db.getAllNotes(bv.addItemToView, "#sub-content-items");
-				$("#sub-content-continue").click(function(){
-					db.getAllNotes(bv.addItemToView, "#sub-content-items");	
-				});
+				var loadTemplate = TemplateLoader("../html/note.html", function(template){
+					debugger;
+					em.bindEditNote("#sub-content-items");
+					db.getAllNotes(bv.addItemToView, "#sub-content-items", template);
+					$("#sub-content-continue").click(function(){
+						db.getAllNotes(bv.addItemToView, "#sub-content-items", template);	
+					}); 
+				})();
 				break;
 
 			case "searchwords":

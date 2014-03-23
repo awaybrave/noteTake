@@ -4,7 +4,9 @@
   "description" : "Taking notes from web pages",
   "background" : {
 	"page" : "./html/background.html"
-  //  "scripts": ["./js/background.js"]
+  },
+  "sandbox": {
+	"pages":["./html/background.html", "./html/note.html"]
   },
   "browser_action":{
 	"default_icon": "./image/sandwich-19.png",
@@ -31,5 +33,6 @@
     "48" : "./image/sandwich-48.png",
     "128" : "./image/sandwich-128.png"
   },
+  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
   "manifest_version": 2
 }
