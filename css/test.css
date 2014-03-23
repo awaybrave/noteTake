@@ -89,7 +89,7 @@ body {
 .main-content .item .time-id .createtime {
   color: #468847;
 }
-.main-content .item .time-id .edit-text {
+.main-content .item .time-id .view-text {
   color: #b94a48;
   position: relative;
   left: 2em;
@@ -327,6 +327,37 @@ body {
 }
 #main-content-general .x .axis path {
   display: none;
+}
+.modal-content .modal-body .note-comment .commentBlock {
+  position: relative;
+  margin: 20px 0;
+  padding-top: 10px;
+}
+.modal-content .modal-body .note-comment .commentBlock p {
+  padding: 5px 10px;
+  border: 1px solid #d9d9d9;
+  overflow: hidden;
+}
+.modal-content .modal-body .note-comment .commentBlock .del {
+  position: absolute;
+  right: 5px;
+  width: 10px;
+  font-size: 18px;
+  font-weight: bold;
+  line-height: 1;
+  color: #000000;
+  text-shadow: #ffffff 0px 1px 0px;
+  opacity: 0.2;
+  cursor: pointer;
+  padding: 0px;
+  background: transparent;
+  border: 0px;
+  border-image-source: initial;
+  border-image-slice: initial;
+  border-image-width: initial;
+  border-image-outset: initial;
+  border-image-repeat: initial;
+  -webkit-appearance: none;
 }
 .clear {
   clear: both;

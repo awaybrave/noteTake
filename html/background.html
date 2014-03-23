@@ -175,17 +175,27 @@
 								<h2>编辑摘抄</h2>
 							</div>
 							<div class="modal-body">
-								<div id="note-kw-show"></div>
-								<div id="note-kw-add">
-									<input id="new-kw-input" type="text"></input>
-									<span>确定</span> 
-									<!--selection-->
+								<div>
+									<h4>摘抄关键字：</h4>
+									<div id="note-kw-show"></div>
 								</div>
-								<textarea id="note-content" col="50" row="10"></textarea>
+								<div>
+									<h4>摘抄内容：</h4>
+									<div class="note-content"></div> 								</div>
+								<div>
+									<h4>摘抄评注：</h4>
+									<div class="note-comment">
+									</div>
+								</div>
+								<div id="addComment">
+									<h4>添加备注：</h4>
+									<textarea id="com-input"></textarea>
+									<button class="add-com-btn">添加</button>
+								</div>
 							</div>
 							<div class="modal-footer">
 								<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-								<button type="button" class="btn btn-primary">Save changes</button>
+								<button type="button" id="note-save" class="btn btn-primary">Save changes</button>
 							</div>
 						</div>
 					</div>

@@ -47,6 +47,12 @@ var helper = {
 		return result; 
 	},
 
+	"IdToTime": function(id){
+		var result = "";
+		var postFix = ["年", "月", "日", "时", "分"];
+		return result;	
+	},
+
 	"isSubNode": function(parentNode, node){
 		while(node && node.parentNode != parentNode)
 			node = node.parentNode;
@@ -108,12 +114,13 @@ var helper = {
 var dataBaseFunction = function(){
 	var that = {}; 
 
-	that.dbName = "note1";
-	that.dbVersion = 4;
-	that.allItems = [];
-	that.kwToNotesDone = false;
+	var dbName = "note1";
+	var dbVersion = 4;
 	var kwToNotes = [];
 	var last = null;
+	var db; 
+	that.allItems = [];
+	that.kwToNotesDone = false;
 
 	function isFoundInKeyword(list, target){
 		var head = 0, tail = list.length-1;
@@ -129,35 +136,35 @@ var dataBaseFunction = function(){
 		else
 			return false; 
 	};
-
-	that.open = function(){
-		that.request = indexedDB.open(that.dbName, that.dbVersion);
+	that.ready = function(callback){
+		that.request = indexedDB.open(dbName, dbVersion);
 
 		that.request.onerror = function(event){
 			alert("error: " + event.target.errorCode);
 		};
 
 		that.request.onsuccess = function(event){
-			that.db = that.request.result;
+			db = that.request.result;
+			callback();
 		};
 
 		that.request.onupgradeneeded = function(event){
-			that.db = event.target.result;
+			db = event.target.result;
 			//create note objectStore;
-			var obsNote = that.db.createObjectStore("notes", {keyPath: "notesId", autoIncrement: true});
+			var obsNote = db.createObjectStore("notes", {keyPath: "notesId", autoIncrement: true});
 			obsNote.createIndex("createTime", "createTime", {unique:true});	
 			obsNote.createIndex("url", "url");
 
-			var obsCreateTime = that.db.createObjectStore("monthTotal", {keyPath: "timeId"});
+			var obsCreateTime = db.createObjectStore("monthTotal", {keyPath: "timeId"});
 		};
 
 		if(!localStorage.getItem("kwcount"))
 			localStorage.setItem("kwcount", 0);
-	}
+	};
 
 	that.addItem = function(item){ 
 		//Manipulate objectStore "notes" and "monthTotal".
-		var transaction = that.db.transaction("notes", "readwrite");
+		var transaction = db.transaction("notes", "readwrite");
 		
 		//Storing the note information including 
 		//create time, url and corresponding key words.
@@ -191,7 +198,7 @@ var dataBaseFunction = function(){
 		// end of storing note information.
 
 		// adding the value of objectStore "monthTotal"
-		transaction = that.db.transaction("monthTotal", "readwrite");
+		transaction = db.transaction("monthTotal", "readwrite");
 		os = transaction.objectStore("monthTotal");
 		var currentMonth = time.getFullYear() + "/" + (time.getMonth()+1);
 		var request = os.get(currentMonth);
@@ -210,7 +217,16 @@ var dataBaseFunction = function(){
 		// end of adding.
 	};
 
-	
+	that.updateNote = function(noteId, noteContent){ 
+		var os = db.transaction("notes", "readwrite").objectStore("notes");
+		var request = os.get(noteId);
+		request.onsuccess = function(event){
+			debugger;
+			var result = request.result;
+			result.comment = noteContent["comment"];
+			var requestUpdate = os.put(result);
+		}
+	};
 	that.getKeyWords = function(){
 		var kwc = localStorage.getItem("kwcount");
 		var result = [];
@@ -220,8 +236,16 @@ var dataBaseFunction = function(){
 		return result;
 	}
 
+	that.getNoteById = function(id, func){ 
+		var os = db.transaction("notes").objectStore("notes");
+		var request = os.get(id);
+		request.onsuccess = function(event){
+			func(request.result);
+		}
+	};
+
 	that.getAllNotes = function(func, selector){ 
-		var os = that.db.transaction("notes").objectStore("notes");
+		var os = db.transaction("notes").objectStore("notes");
 		var count = 0;
 		var currentBound;
 		if(!last) 
@@ -242,7 +266,7 @@ var dataBaseFunction = function(){
 	that.getNetwork = function(func){ 
 		func(that.getKeyWords()); // sending keywords
 
-		var os = that.db.transaction("notes").objectStore("notes");
+		var os = db.transaction("notes").objectStore("notes");
 		os.openCursor().onsuccess = function(event){
 			var cursor = event.target.result;
 			if(cursor){
@@ -256,7 +280,7 @@ var dataBaseFunction = function(){
 
 	that.getMonthTotal = function(func){
 		var monthTotal = [];
-		var os = that.db.transaction("monthTotal").objectStore("monthTotal");
+		var os = db.transaction("monthTotal").objectStore("monthTotal");
 		os.openCursor().onsuccess = function(event){
 			var cursor = event.target.result;
 			if(cursor){
@@ -270,7 +294,7 @@ var dataBaseFunction = function(){
 
 	that.getNotesAndKeywords = function(){
 		kwToNotes = [];
-		var os = that.db.transaction("notes").objectStore("notes");
+		var os = db.transaction("notes").objectStore("notes");
 		os.openCursor().onsuccess = function(event){
 			var cursor = event.target.result;
 			if(cursor){
@@ -290,7 +314,7 @@ var dataBaseFunction = function(){
 		var i, j;
 		var flag;
 		var request;
-		var os = that.db.transaction("notes").objectStore("notes");
+		var os = db.transaction("notes").objectStore("notes");
 		if(chosen){
 			for(i = 0; i < kwToNotes[chosen[0]].length; i++){
 				flag = true;
@@ -311,7 +335,7 @@ var dataBaseFunction = function(){
 	};
 
 	that.getTimeSearchResult = function(func, start, end, selector){ 
-		var os = that.db.transaction("notes").objectStore("notes");
+		var os = db.transaction("notes").objectStore("notes");
 		var boundKeyRange = IDBKeyRange.bound(start, end);
 		os.openCursor(boundKeyRange).onsuccess = function(event){
 			var cursor = event.target.result;
@@ -323,7 +347,7 @@ var dataBaseFunction = function(){
 	};
 
 	that.getContentSearchResult = function(func, contentArray, selector){
-		var os = that.db.transaction("notes").objectStore("notes"); 
+		var os = db.transaction("notes").objectStore("notes"); 
 		os.openCursor().onsuccess = function(event){
 			var cursor = event.target.result;
 			if(cursor){
@@ -414,13 +438,17 @@ var backgroundView = function(){
 								+ "<span class='createtime'>创建时间： "
 								+ note.createTime 
 								+ "</span>"
-								+ "<span class='edit-text' noteId="
+								+ "<span class='view-text' noteId="
 								+ note.notesId
-								+ ">编辑</span>" 
+								+ ">查看</span>" 
 								+ "</p>"
 								+ "<div class='content-paras'>"
-		for(var i = 0; i < note.content.length; i++)
-			itemBlockString += "<p>" + note.content[i] + "</p>";
+		for(var i = 0; i < note.content.length; i++){
+			if(note.content[i].length > 50)
+				itemBlockString += "<p>" + note.content[i].substr(0,50) + "……</p>";
+			else
+				itemBlockString += "<p>" + note.content[i] + "</p>";
+		}
 		itemBlockString += "</div><p class='url'>来自："
 							+ "<a href="
 							+ note.url
@@ -615,6 +643,40 @@ var backgroundView = function(){
 								+ kw_index[i].index + "</span></span>"); 
 	}
 
+	that.openViewForm = function(data){
+		$(".note-content").empty();
+		$(".note-comment").empty();
+		$("#note-kw-show").empty();
+		var content = data.content;
+		var comment = data.comment;
+		var kw = data.kw;
+		if(content){
+			for(var i = 0; i < content.length; i++)
+				$(".note-content").append("<p>" + content[i] + "</p>");
+		}
+		if(comment){
+			for(var i = 0; i < comment.length; i++){
+				$(".note-comment").append("<div class='commentBlock'>" + "<p class='del'>&times;</p>" + "<p class='each-comment'>" + comment[i] + "</p>" + "</div>");
+			}
+		}
+		else{
+			$(".note-comment").append("暂时没有评注");
+		}
+		if(kw){
+			for(var i = 0; i < kw.length; i++){
+				var kw_name = localStorage.getItem("kw"+kw[i]);
+				$("#note-kw-show").append("<span>" + kw_name + "</span>");
+			}
+		}
+		$("#edit-note-form").modal({"backdrop": "static"});
+	};
+	
+	that.addComment = function(comment){
+		if($(".note-comment").text() == "暂时没有评注"){
+			$(".note-comment").empty();
+		}
+		$(".note-comment").append("<div class='commentBlock'>" + "<p class='del'>&times;</p>" + "<p class='each-comment'>" + comment + "</p>" + "</div>");
+	};
 	that.clearView = function(selector){
 		$(selector).empty();
 	};
@@ -623,37 +685,60 @@ var backgroundView = function(){
 };
 
 var EventManager = function(){
-	var that = {};
-	
+	var that = {}; 
+
+	function addCommentHandler(){
+		var new_com = $("#com-input").val();
+		if(new_com){
+			bv.addComment(new_com);
+			$("#com-input").val("");
+		} 
+	}
+
+	function noteSaveHandler(e){
+		debugger;
+		var comment = [];
+		var commentBlocks = $(".each-comment");
+		for(var i = 0; i < commentBlocks.length; i++){ 
+			comment.push(commentBlocks[i].innerHTML);	
+		}
+		db.updateNote(e.data.noteId, {"comment": comment});
+	}
+
 	//Use event bubble to bind event for
 	//future elements.
 	that.bindEditNote = function(container){
 		$(container).click(function(e){
-			if(e.target.className == "edit-text"){
-				var pars = $(e.target).parent().parent().children(".content-paras").children("p");
-				var subContent = [];
-				for(var i = 0; i < pars.length; i++)
-					subContent.push(pars.text());
-				$("#note-content").val(subContent.join("\n"));
-				$("#edit-note-form").modal({"backdrop" : "static"});
+			if(e.target.className == "view-text"){
+				var id = e.target.getAttribute("noteId");
+				db.getNoteById(id, bv.openViewForm);
+				$(".add-com-btn").bind("click", addCommentHandler);
+				$("#note-save").bind("click", {"noteId": id}, noteSaveHandler);
+				debugger;
+				$(".del").bind("click", function(event){
+					debugger;
+					event.target.parentNode.removeChild(event.target);
+				});
 			}
+		});
+		$("#edit-note-form").on("hidden.bs.modal", function(e){
+			addComment = [];
+			$(".add-com-btn").unbind("click", addCommentHandler);
+			$("#note-save").unbind("click", noteSaveHandler); 
 		});
 	};
 
 	return that;
 };
 
-window.onload = function(){
+var db = dataBaseFunction();
+var bv = backgroundView(); 
+var em = EventManager();
 
-	/*delete the database
-	indexedDB.deleteDatabase("note");
-	*/	
-
-	var db = dataBaseFunction();
-	db.open();
-	var bv = backgroundView(); 
-	var em = EventManager();
-
+/*delete the database
+indexedDB.deleteDatabase("note");
+*/	
+db.ready(function(){
 	/*determine working mode*/
 	var url = window.location.href;
 	var reg = /\?\w+=(\w+)/;
@@ -703,35 +788,14 @@ window.onload = function(){
 		var timeDB; 
 		switch(mode){
 			case "general":
-				if(!db.db){
-					/*waiting for db to be ready.*/
-					timedDB = setInterval(function(){
-						if(db.db){ 
-							db.getMonthTotal(bv.pictureMonthTotal);
-							db.getNetwork(bv.pictureNetwork);
-							clearInterval(timedDB);
-						}	
-					}, 10);
-				}
-				else{
-					db.getMonthTotal(bv.pictureMonthTotal);
-					db.getNetwork(bv.pictureNetwork);
-				}
+				db.getMonthTotal(bv.pictureMonthTotal);
+				db.getNetwork(bv.pictureNetwork);
+				clearInterval(timedDB);
 				break;
 
 			case "seeall":
 				em.bindEditNote("#sub-content-items");
-				if(!db.db){
-					/*waiting for db to be ready.*/
-					timedDB = setInterval(function(){
-						if(db.db){
-							db.getAllNotes(bv.addItemToView, "#sub-content-items");
-							clearInterval(timedDB);
-						}	
-					}, 10);
-				}
-				else
-					db.getAllNotes(bv.addItemToView, "#sub-content-items");
+				db.getAllNotes(bv.addItemToView, "#sub-content-items");
 				$("#sub-content-continue").click(function(){
 					db.getAllNotes(bv.addItemToView, "#sub-content-items");	
 				});
@@ -739,49 +803,43 @@ window.onload = function(){
 
 			case "searchwords":
 				em.bindEditNote("#sub-content-wresult");
-				timedDB = setInterval(function(){
-					if(db.db){
-						var keywords = db.getKeyWords();
-						bv.listKeywords("#sub-content-words", keywords); 
-						$("#sub-content-words").append("<p id='fn-searchwords'>Search</p>");
+				var keywords = db.getKeyWords();
+				bv.listKeywords("#sub-content-words", keywords); 
+				$("#sub-content-words").append("<p id='fn-searchwords'>Search</p>");
 
-						db.getNotesAndKeywords();
+				db.getNotesAndKeywords();
 
-						$(".keywords").click(function(){
-							bv.clearView("#sub-content-wresult");
-							//select keywords
-							if($(this).hasClass("keywords-chosen")) 
-								$(this).removeClass("keywords-chosen");
-							else
-								$(this).addClass("keywords-chosen");
-						});
-					
-						$("#fn-searchwords").click(function(){
-							bv.clearView("#sub-content-wresult");
-							$("#sub-content-cwords").empty();
-							$("#sub-content-cwords").append("关键词 ");
-							var chosen = [];	
-							var index;
-							var chosenItem = $(".keywords-chosen");	
-							for(var i = 0; i < chosenItem.length; i++){
-								index = parseInt($(chosenItem[i]).parent()
-												.children(".kwindex")[0].innerHTML);
-								chosen.push(index);
-								$(chosenItem[i]).removeClass("keywords-chosen");
-								$("#sub-content-cwords").append("<span class='chosen'>" + $(chosenItem[i]).text() + "</span>");
-							}
-							$("#sub-content-cwords").append("的搜索结果是：");
-							var timedkn = setInterval(function(){
-								if(db.kwToNotesDone){
-									db.getKeywordsSearchResult(bv.addItemToView, chosen, "#sub-content-wresult");
-									clearInterval(timedkn);
-								}
-							}, 10);
-						});
-
-						clearInterval(timedDB);
+				$(".keywords").click(function(){
+					bv.clearView("#sub-content-wresult");
+					//select keywords
+					if($(this).hasClass("keywords-chosen")) 
+						$(this).removeClass("keywords-chosen");
+					else
+						$(this).addClass("keywords-chosen");
+				});
+			
+				$("#fn-searchwords").click(function(){
+					bv.clearView("#sub-content-wresult");
+					$("#sub-content-cwords").empty();
+					$("#sub-content-cwords").append("关键词 ");
+					var chosen = [];	
+					var index;
+					var chosenItem = $(".keywords-chosen");	
+					for(var i = 0; i < chosenItem.length; i++){
+						index = parseInt($(chosenItem[i]).parent()
+										.children(".kwindex")[0].innerHTML);
+						chosen.push(index);
+						$(chosenItem[i]).removeClass("keywords-chosen");
+						$("#sub-content-cwords").append("<span class='chosen'>" + $(chosenItem[i]).text() + "</span>");
 					}
-				}, 10);
+					$("#sub-content-cwords").append("的搜索结果是：");
+					var timedkn = setInterval(function(){
+						if(db.kwToNotesDone){
+							db.getKeywordsSearchResult(bv.addItemToView, chosen, "#sub-content-wresult");
+							clearInterval(timedkn);
+						}
+					}, 10);
+				}); 
 				break;
 
 			case "searchtime":
@@ -944,4 +1002,6 @@ window.onload = function(){
 				break;	
 		}
 	}
-}; 
+	
+});
+
