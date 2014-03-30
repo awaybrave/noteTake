@@ -81,6 +81,9 @@ body {
   padding: 20px;
   border-top: 1px solid #cccccc;
 }
+.main-content .item:first-child {
+  border-top: none;
+}
 .main-content .item .time-id {
   margin: 5px 0;
   font-weight: bold;
