@@ -1,5 +1,6 @@
 var helper = {
 	"getId": function(time){
+		time = time || new Date();
 		var result = "";
 		result += time.getFullYear();
 		if(time.getMonth() < 9)
@@ -47,11 +48,13 @@ var helper = {
 		return result; 
 	},
 
+	/*
 	"IdToTime": function(id){
 		var result = "";
 		var postFix = ["年", "月", "日", "时", "分"];
 		return result;	
 	},
+	*/
 
 	"isSubNode": function(parentNode, node){
 		while(node && node.parentNode != parentNode)
@@ -362,25 +365,27 @@ var dataBaseFunction = function(){
 		};
 	};
 
-	that.getContentSearchResult = function(func, contentArray, selector){
+	that.getContentSearchResult = function(func, contentArray, selector, template){
 		var os = db.transaction("notes").objectStore("notes"); 
 		os.openCursor().onsuccess = function(event){
 			var cursor = event.target.result;
 			if(cursor){
 				var flag = false;
-				for(var i = 0; i < contentArray.length; i++){
-					var regTest = new RegExp("(" + contentArray[i] + ")", "g");
-					var targetContent = cursor.value.content;
-					for(var j = 0; j < targetContent.length; j++){
-						if(regTest.test(targetContent[i])){
-							targetContent[i] = targetContent[i].replace(regTest, "<span class='emph'>" + "$1" + "</span>");
+				var targetContent = cursor.value.content;
+				for(var j = 0; j < targetContent.length; j++){
+					for(var i = 0; i < contentArray.length; i++){
+						if(!contentArray[i])
+							continue;
+						var regTest = new RegExp("(" + contentArray[i] + ")", "g");
+						if(regTest.test(targetContent[j])){
+							targetContent[j] = targetContent[j].replace(regTest, "<span class='emph'>" + "$1" + "</span>");
 							flag = true;
 						}
 					}
 				}
 				cursor.value = targetContent;
 				if(flag){
-					func(selector, cursor.value);
+					func(selector, cursor.value, template);
 				}
 				cursor.continue();
 			} 
@@ -469,7 +474,6 @@ var backgroundView = function(){
 	var that = {};
 
 	that.addItemToView = function(selector, note, template){
-		debugger;
 		var result = TemplateEngine(template.note, note);
 		$(selector).append(result);
 	};
@@ -1002,19 +1006,21 @@ db.ready(function(){
 				break;
 
 			case "searchcontent":
-				em.bindEditNote("#sub-content-cresult");
-				$("#search-content-enter").click(function(){
-					var content = $("#search-content-input").val();
-					if(!content){
-						alert("搜索内容不能为空！");
-					}
-					else{
-						content.replace(/,|\.\?|;|'|"/g, " ");
-						var subcontent = content.split(" ");
-						$("#sub-content-cresult").empty();
-						db.getContentSearchResult(bv.addItemToView, subcontent,"#sub-content-cresult");
-					}
-				});
+				var loadTemplate = TemplateLoader("../html/searchcontent.html", function(template){
+					em.bindEditNote("#sub-content-cresult");
+					$("#search-content-enter").click(function(){
+						var content = $("#search-content-input").val();
+						if(!content){
+							alert("搜索内容不能为空！");
+						}
+						else{
+							content = content.trim();
+							var subcontent = content.split(" ");
+							$("#sub-content-cresult").empty();
+							db.getContentSearchResult(bv.addItemToView, subcontent, "#sub-content-cresult", template);
+						}
+					});
+				})();
 				break;	
 		}
 	}
