@@ -105,6 +105,17 @@ body {
   color: #2f4f4f;
   text-decoration: none;
 }
+.main-content #main-content-seeall #sub-content-continue {
+  cursor: pointer;
+  text-align: center;
+  color: #b22222;
+  background: #e5e5e5;
+  margin: 10px;
+  padding: 10px;
+}
+.main-content #main-content-seeall #sub-content-continue:hover {
+  background: #d9d9d9;
+}
 .main-content #main-content-searchtime .searchtime-method {
   -webkit-border-radius: 5px;
   -moz-border-radius: 5px;
