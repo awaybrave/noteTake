@@ -273,12 +273,14 @@ var dataBaseFunction = function(){
 			currentBound = IDBKeyRange.upperBound(last.notesId, true);
 		os.openCursor(currentBound, "prev").onsuccess = function(event){
 			var cursor = event.target.result;
-			if(cursor && count < 10){
+			if(cursor && count < 5){
 				func(selector, cursor.value, template);
 				last = cursor.value;
 				count++;
 				cursor.continue();
 			}
+			if(!cursor)
+				func("#sub-content-continue", null, null);
 		};
 	};
 
@@ -353,13 +355,13 @@ var dataBaseFunction = function(){
 		}
 	};
 
-	that.getTimeSearchResult = function(func, start, end, selector){ 
+	that.getTimeSearchResult = function(func, start, end, selector, template){ 
 		var os = db.transaction("notes").objectStore("notes");
 		var boundKeyRange = IDBKeyRange.bound(start, end);
 		os.openCursor(boundKeyRange).onsuccess = function(event){
 			var cursor = event.target.result;
 			if(cursor){
-				func(selector, event.target.result.value);
+				func(selector, event.target.result.value, template);
 				cursor.continue();
 			}
 		};
@@ -474,8 +476,13 @@ var backgroundView = function(){
 	var that = {};
 
 	that.addItemToView = function(selector, note, template){
-		var result = TemplateEngine(template.note, note);
-		$(selector).append(result);
+		if(note){
+			var result = TemplateEngine(template.note, note);
+			$(selector).append(result);
+		}
+		else{
+			$(selector).remove();
+		}
 	};
 	
 	that.pictureMonthTotal = function(months){
@@ -832,7 +839,7 @@ db.ready(function(){
 						//select keywords
 						if($(this).hasClass("keywords-chosen")) 
 							$(this).removeClass("keywords-chosen");
-						else
+					else
 							$(this).addClass("keywords-chosen");
 					});
 					$("#fn-searchwords").click(function(){
@@ -863,150 +870,152 @@ db.ready(function(){
 				break;
 
 			case "searchtime":
-				em.bindEditNote("#sub-content-result");
-				$("#searchtime-method-options").click(function(){
-					$("#precise-time").removeClass("fn-hide");
-					$("#searchtime-options").removeClass("fn-hide");
-					$($(".searchtime-method")[1]).removeClass("searchtime-method-select");
-					$($(".searchtime-method")[0]).addClass("searchtime-method-select");
-					$("#searchtime-precise").addClass("fn-hide");
-				});
-				$("#searchtime-method-precise").click(function(){
-					$("#searchtime-options").addClass("fn-hide");
-					$("#searchtime-precise").removeClass("fn-hide");
-					$($(".searchtime-method")[0]).removeClass("searchtime-method-select");
-					$($(".searchtime-method")[1]).addClass("searchtime-method-select");
-				});
-				$("body").click(function(event){
-					var ct = event.target;
-					var input1 = document.getElementById("start-input-input");
-					var input2 = document.getElementById("end-input-input");
-					var c1 = document.getElementById("start-calendar");
-					var c2 = document.getElementById("end-calendar");
-					if(ct != input1 && ct != input2
-						&& !helper.isSubNode(c1, ct) 
-						&& !helper.isSubNode(c2, ct)
-					){
-						$(c1).addClass("fn-hide");
-						$(c2).addClass("fn-hide"); 
-					}
-					if(ct == input1){
-						$(c1).removeClass("fn-hide");
-						$(c2).addClass("fn-hide");
-					}
-					if(ct == input2){
-						$(c2).removeClass("fn-hide");
-						$(c1).addClass("fn-hide");
-					}
-					//if(helper.isSubNode(c1, ct))
-				});
-				
-				//filling with and setting event of calendar
-				var cal_time = new Date();
-				var start_time = new Date(cal_time);
-				var end_time = new Date(cal_time);
-				var i;
-				for(i = 0; i < 6; i++){
-					$("#start-calendar tbody").append("<tr>");
-					$("#end-calendar tbody").append("<tr>");
-				}
-				for(i = 0; i < 7; i++){ 
-					$("#start-calendar tbody tr").append("<td>");
-					$("#end-calendar tbody tr").append("<td>");
-				}
-				helper.fillCalendar("#start-calendar", cal_time);
-				helper.fillCalendar("#end-calendar", cal_time);
-				$("#start-pre-m").click(function(){
-					helper.fillCalendar("#start-calendar", 
-						new Date(start_time.setMonth(start_time.getMonth()-1))
-					); 
-				});
-				$("#start-next-m").click(function(){
-					helper.fillCalendar("#start-calendar", 
-						new Date(start_time.setMonth(start_time.getMonth()+1))
-					); 
-				});
-				$("#end-pre-m").click(function(){
-					helper.fillCalendar("#end-calendar", 
-						new Date(end_time.setMonth(end_time.getMonth()-1))
-					); 
-				});
-				$("#end-next-m").click(function(){
-					helper.fillCalendar("#end-calendar", 
-						new Date(end_time.setMonth(end_time.getMonth()+1))
-					); 
-				});
-				$("#start-calendar td").click(function(event){
-					var temp = $(this).text();
-					if(temp){
-						if(temp.length == 1)
-							temp = "0" + temp;
-						var start_date = $("#start-month").text() + "/" + temp;
-						$("#start-input-input").val(start_date);
-					}
-					$("#start-calendar").addClass("fn-hide");
-				});
-				$("#end-calendar td").click(function(event){
-					var temp = $(this).text();
-					if(temp){
-						if(temp.length == 1)
-							temp = "0" + temp;
-						var end_date = $("#end-month").text() + "/" + temp;
-						$("#end-input-input").val(end_date);
-					}
-					$("#end-calendar").addClass("fn-hide");
-				});
-				//end of setting calendar
-
-				$("#searchtime-enter").click(function(){
-					var start, end, temp;
-					bv.clearView("#sub-content-result");
-					if($("#searchtime-options").hasClass("fn-hide")){ 
-						var period = $("#precise-time").find("input");
-						start = (period[0].value).replace(/\//g, "") + "000000"; 
-						end = (period[1].value).replace(/\//g, "") + "235959"; 
-					}
-					else{
-						var options = $("#searchtime-options").find("input");
-						var i;
-						var current = new Date();
-
-						//current = new Date(current.setHours(0)); // to test hour 0
-						
-						for(i = 0; i < options.length; i++){
-							if(options[i].checked){
-								switch (options[i].value){
-									case "24":
-										temp = current.getHours();
-										end = helper.getId(current);
-										start = helper.getId(new Date(current.setHours(temp-1)));
-										break;
-									case "1":
-										temp = current.getDate();
-										end = helper.getId(current);
-										start = helper.getId(new Date(current.setHours(0)));
-										break;
-									case "7":
-										temp = current.getDate();
-										end = helper.getId(current);
-										start = helper.getId(new Date(current.setDate(temp-7)));
-										break;
-									case "30":
-										temp = current.getMonth();
-										end = helper.getId(current);
-										start = helper.getId(new Date(current.setMonth(temp-1)));
-										break;
-								}
-								break;
-							}
+				var loadTemplate = TemplateLoader("../html/note.html", function(template){
+					em.bindEditNote("#sub-content-result");
+					$("#searchtime-method-options").click(function(){
+						$("#precise-time").removeClass("fn-hide");
+						$("#searchtime-options").removeClass("fn-hide");
+						$($(".searchtime-method")[1]).removeClass("searchtime-method-select");
+						$($(".searchtime-method")[0]).addClass("searchtime-method-select");
+						$("#searchtime-precise").addClass("fn-hide");
+					});
+					$("#searchtime-method-precise").click(function(){
+						$("#searchtime-options").addClass("fn-hide");
+						$("#searchtime-precise").removeClass("fn-hide");
+						$($(".searchtime-method")[0]).removeClass("searchtime-method-select");
+						$($(".searchtime-method")[1]).addClass("searchtime-method-select");
+					});
+					$("body").click(function(event){
+						var ct = event.target;
+						var input1 = document.getElementById("start-input-input");
+						var input2 = document.getElementById("end-input-input");
+						var c1 = document.getElementById("start-calendar");
+						var c2 = document.getElementById("end-calendar");
+						if(ct != input1 && ct != input2
+							&& !helper.isSubNode(c1, ct) 
+							&& !helper.isSubNode(c2, ct)
+						){
+							$(c1).addClass("fn-hide");
+							$(c2).addClass("fn-hide"); 
 						}
+						if(ct == input1){
+							$(c1).removeClass("fn-hide");
+							$(c2).addClass("fn-hide");
+						}
+						if(ct == input2){
+							$(c2).removeClass("fn-hide");
+							$(c1).addClass("fn-hide");
+						}
+						//if(helper.isSubNode(c1, ct))
+					});
+					
+					//filling with and setting event of calendar
+					var cal_time = new Date();
+					var start_time = new Date(cal_time);
+					var end_time = new Date(cal_time);
+					var i;
+					for(i = 0; i < 6; i++){
+						$("#start-calendar tbody").append("<tr>");
+						$("#end-calendar tbody").append("<tr>");
 					}
-					db.getTimeSearchResult(bv.addItemToView, start, end, "#sub-content-result");
-				});
+					for(i = 0; i < 7; i++){ 
+						$("#start-calendar tbody tr").append("<td>");
+						$("#end-calendar tbody tr").append("<td>");
+					}
+					helper.fillCalendar("#start-calendar", cal_time);
+					helper.fillCalendar("#end-calendar", cal_time);
+					$("#start-pre-m").click(function(){
+						helper.fillCalendar("#start-calendar", 
+							new Date(start_time.setMonth(start_time.getMonth()-1))
+						); 
+					});
+					$("#start-next-m").click(function(){
+						helper.fillCalendar("#start-calendar", 
+							new Date(start_time.setMonth(start_time.getMonth()+1))
+						); 
+					});
+					$("#end-pre-m").click(function(){
+						helper.fillCalendar("#end-calendar", 
+							new Date(end_time.setMonth(end_time.getMonth()-1))
+						); 
+					});
+					$("#end-next-m").click(function(){
+						helper.fillCalendar("#end-calendar", 
+							new Date(end_time.setMonth(end_time.getMonth()+1))
+						); 
+					});
+					$("#start-calendar td").click(function(event){
+						var temp = $(this).text();
+						if(temp){
+							if(temp.length == 1)
+								temp = "0" + temp;
+							var start_date = $("#start-month").text() + "/" + temp;
+							$("#start-input-input").val(start_date);
+						}
+						$("#start-calendar").addClass("fn-hide");
+					});
+					$("#end-calendar td").click(function(event){
+						var temp = $(this).text();
+						if(temp){
+							if(temp.length == 1)
+								temp = "0" + temp;
+							var end_date = $("#end-month").text() + "/" + temp;
+							$("#end-input-input").val(end_date);
+						}
+						$("#end-calendar").addClass("fn-hide");
+					});
+					//end of setting calendar
+
+					$("#searchtime-enter").click(function(){
+						var start, end, temp;
+						bv.clearView("#sub-content-result");
+						if($("#searchtime-options").hasClass("fn-hide")){ 
+							var period = $("#precise-time").find("input");
+							start = (period[0].value).replace(/\//g, "") + "000000"; 
+							end = (period[1].value).replace(/\//g, "") + "235959"; 
+						}
+						else{
+							var options = $("#searchtime-options").find("input");
+							var i;
+							var current = new Date();
+
+							//current = new Date(current.setHours(0)); // to test hour 0
+							
+							for(i = 0; i < options.length; i++){
+								if(options[i].checked){
+									switch (options[i].value){
+										case "24":
+											temp = current.getHours();
+											end = helper.getId(current);
+											start = helper.getId(new Date(current.setHours(temp-1)));
+											break;
+										case "1":
+											temp = current.getDate();
+											end = helper.getId(current);
+											start = helper.getId(new Date(current.setHours(0)));
+											break;
+										case "7":
+											temp = current.getDate();
+											end = helper.getId(current);
+											start = helper.getId(new Date(current.setDate(temp-7)));
+											break;
+										case "30":
+											temp = current.getMonth();
+											end = helper.getId(current);
+											start = helper.getId(new Date(current.setMonth(temp-1)));
+											break;
+									}
+									break;
+								}
+							}
+						} 
+						db.getTimeSearchResult(bv.addItemToView, start, end, "#sub-content-result", template);
+					});
+				})();
 				break;
 
 			case "searchcontent":
-				var loadTemplate = TemplateLoader("../html/searchcontent.html", function(template){
+				var loadTemplate = TemplateLoader("../html/note.html", function(template){
 					em.bindEditNote("#sub-content-cresult");
 					$("#search-content-enter").click(function(){
 						var content = $("#search-content-input").val();
