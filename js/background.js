@@ -358,7 +358,7 @@ var dataBaseFunction = function(){
 	that.getTimeSearchResult = function(func, start, end, selector, template){ 
 		var os = db.transaction("notes").objectStore("notes");
 		var boundKeyRange = IDBKeyRange.bound(start, end);
-		os.openCursor(boundKeyRange).onsuccess = function(event){
+		os.openCursor(boundKeyRange, "prev").onsuccess = function(event){
 			var cursor = event.target.result;
 			if(cursor){
 				func(selector, event.target.result.value, template);
