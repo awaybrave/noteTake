@@ -1019,14 +1019,16 @@ db.ready(function(){
 					em.bindEditNote("#sub-content-cresult");
 					$("#search-content-enter").click(function(){
 						var content = $("#search-content-input").val();
-						if(!content){
-							alert("搜索内容不能为空！");
-						}
-						else{
+						if(content){
 							content = content.trim();
 							var subcontent = content.split(" ");
 							$("#sub-content-cresult").empty();
 							db.getContentSearchResult(bv.addItemToView, subcontent, "#sub-content-cresult", template);
+						}
+					});
+					$("body").keypress(function(e){
+						if(e.keyCode == 13){
+							$("#search-content-enter").trigger("click");	
 						}
 					});
 				})();
